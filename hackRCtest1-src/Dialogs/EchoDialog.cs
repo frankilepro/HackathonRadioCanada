@@ -43,7 +43,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
             var confirm = await argument;
             if (confirm)
             {
-                this.count = 0;
+                count = 0;
                 await context.PostAsync("Reset count at 0!.");
             }
             else
@@ -52,6 +52,5 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
             }
             context.Wait(MessageReceivedAsync);
         }
-
     }
 }
