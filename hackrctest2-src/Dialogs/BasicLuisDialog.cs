@@ -31,7 +31,7 @@ namespace Microsoft.Bot.Sample.LuisBot
         [LuisIntent("SendMessage")]
         public async Task SendMessageIntent(IDialogContext context, LuisResult result)
         {
-            if (result.TryFindEntity(MESSAGE_ENTITY, out var entity))
+            if (result.TryFindEntity(MESSAGE_ENTITY, out EntityRecommendation entity))
             {
                 await context.PostAsync($"Message : {entity.Entity}");
             }
