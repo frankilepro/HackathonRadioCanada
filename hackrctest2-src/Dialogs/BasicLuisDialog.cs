@@ -1,20 +1,22 @@
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
-
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 
 namespace Microsoft.Bot.Sample.LuisBot
 {
-    // For more information about this template visit http://aka.ms/azurebots-csharp-luis
     [Serializable]
     public class BasicLuisDialog : LuisDialog<object>
     {
+        const string MESSAGE_ENTITY = "Message";
+
+        static int count = 0;
+
         public BasicLuisDialog() : base(new LuisService(new LuisModelAttribute(
-            ConfigurationManager.AppSettings["LuisAppId"], 
-            ConfigurationManager.AppSettings["LuisAPIKey"], 
+            ConfigurationManager.AppSettings["LuisAppId"],
+            ConfigurationManager.AppSettings["LuisAPIKey"],
             domain: ConfigurationManager.AppSettings["LuisAPIHostName"])))
         {
         }
@@ -22,30 +24,43 @@ namespace Microsoft.Bot.Sample.LuisBot
         [LuisIntent("None")]
         public async Task NoneIntent(IDialogContext context, LuisResult result)
         {
-            await this.ShowLuisResult(context, result);
+            await context.PostAsync($"None Count : {++count}");
+            context.Wait(MessageReceived);
         }
 
-        // Go to https://luis.ai and create a new intent, then train/publish your luis app.
-        // Finally replace "Gretting" with the name of your newly created intent in the following handler
-        [LuisIntent("Greeting")]
-        public async Task GreetingIntent(IDialogContext context, LuisResult result)
+        [LuisIntent("SendMessage")]
+        public async Task SendMessageIntent(IDialogContext context, LuisResult result)
         {
-            await this.ShowLuisResult(context, result);
+            if (result.TryFindEntity(MESSAGE_ENTITY, out var entity))
+            {
+                await context.PostAsync($"Message : {entity.Entity}");
+            }
+            else
+            {
+                await context.PostAsync($"Je n'ai pas compris le message");
+            }
+            context.Wait(MessageReceived);
         }
 
-        [LuisIntent("Cancel")]
-        public async Task CancelIntent(IDialogContext context, LuisResult result)
-        {
-            await this.ShowLuisResult(context, result);
-        }
+        //[LuisIntent("Greeting")]
+        //public async Task GreetingIntent(IDialogContext context, LuisResult result)
+        //{
+        //    await ShowLuisResult(context, result);
+        //}
 
-        [LuisIntent("Help")]
-        public async Task HelpIntent(IDialogContext context, LuisResult result)
-        {
-            await this.ShowLuisResult(context, result);
-        }
+        //[LuisIntent("Cancel")]
+        //public async Task CancelIntent(IDialogContext context, LuisResult result)
+        //{
+        //    await ShowLuisResult(context, result);
+        //}
 
-        private async Task ShowLuisResult(IDialogContext context, LuisResult result) 
+        //[LuisIntent("Help")]
+        //public async Task HelpIntent(IDialogContext context, LuisResult result)
+        //{
+        //    await ShowLuisResult(context, result);
+        //}
+
+        private async Task ShowLuisResult(IDialogContext context, LuisResult result)
         {
             await context.PostAsync($"You have reached {result.Intents[0].Intent}. You said: {result.Query}");
             context.Wait(MessageReceived);
