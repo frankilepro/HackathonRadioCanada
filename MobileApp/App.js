@@ -1,23 +1,41 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet } from "react-native";
+import Chat from './components/Chat';
+import Login from "./components/Login";
 
 export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
-      </View>
-    );
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            logged: true,
+            id: null
+        }
+    }
+
+    handleLogin = (id) => {
+        this.setState({
+            logged: true,
+            id: id
+        });
+    };
+
+    render() {
+        let ElementToRender = <Login/>;
+        if (this.state.logged) {
+            ElementToRender = <Chat id={this.state.id}/>;
+        }
+        return (
+            <KeyboardAvoidingView style={styles.container} behavior="padding">
+                {ElementToRender}
+            </KeyboardAvoidingView>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+        container: {
+            flex: 1,
+            backgroundColor: '#ecf0f1'
+        }
+    }
+);
