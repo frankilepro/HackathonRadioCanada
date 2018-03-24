@@ -5388,6 +5388,10 @@ react-native-scrollable-mixin@^1.0.1:
     color "^2.0.1"
     lodash "^4.16.6"
 
+react-native-tts@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-native-tts/-/react-native-tts-1.5.0.tgz#1eb8b163e262f2ef7a73b48a090ffb6ff2bb8fac"
+
 react-native-vector-icons@4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-4.5.0.tgz#6b95619e64f62f05f579f74a01fe5640df95158b"
@@ -5395,6 +5399,10 @@ react-native-vector-icons@4.5.0:
     lodash "^4.0.0"
     prop-types "^15.5.10"
     yargs "^8.0.2"
+
+react-native-voice@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/react-native-voice/-/react-native-voice-0.2.6.tgz#f6c67fac932a511475ddc4c7b6ff0efeb540cc19"
 
 react-native@0.52.0:
   version "0.52.0"
