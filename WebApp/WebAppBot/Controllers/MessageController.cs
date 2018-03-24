@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 using WebAppBot.Data;
 using WebAppBot.Model;
@@ -38,7 +39,20 @@ namespace WebAppBot.Controllers
 
         private string HandleGetNews(Entity[] entities)
         {
-            return "handle news";
+            if (entities.Length == 0) return "";
+
+            string categoryType = "";
+            foreach (var entity in entities)
+            {
+                if (entity.type.Contains("Categorie"))
+                {
+                    categoryType = entity.type.Replace("Categorie::", "");
+                }
+            }
+
+            List<Article> suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
+
+            return JsonConvert.SerializeObject(suggestedArticles);
         }
 
         private string HandleComment(Entity[] entities)

@@ -9,7 +9,7 @@ namespace WebAppBot
     {
         public static void Main(string[] args)
         {
-            // MongoController.Initialize();
+            MongoController.Initialize();
             // MongoController.PostDocument(new TestMongoModel(1111, "titlellelle"), "testColl").Wait();
             BuildWebHost(args).Run();
         }
