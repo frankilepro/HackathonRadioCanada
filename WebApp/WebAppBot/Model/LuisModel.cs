@@ -8,15 +8,15 @@ namespace WebAppBot.Model
     public class LuisModel
     {
         public string query { get; set; }
-        public TopScoringIntent topScoringIntent { get; set; }
+        public Topscoringintent topScoringIntent { get; set; }
         public Intent[] intents { get; set; }
         public Entity[] entities { get; set; }
     }
 
-    public class TopScoringIntent
+    public class Topscoringintent
     {
         public string intent { get; set; }
-        public float score { get; set; }
+        public int score { get; set; }
     }
 
     public class Intent
@@ -31,6 +31,7 @@ namespace WebAppBot.Model
         public string type { get; set; }
         public int startIndex { get; set; }
         public int endIndex { get; set; }
+        public float score { get; set; }
         public Resolution resolution { get; set; }
     }
 
