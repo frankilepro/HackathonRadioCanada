@@ -84,6 +84,14 @@ export default class Chat extends React.Component {
         this.process(messages);
     };
 
+    handleUpvote = () => {
+        alert("up");
+    };
+
+    handleDownvote = () => {
+        alert("down");
+    };
+
     process = (messages) => {
         if (messages.length > 0) {
             if ((messages[0].image || messages[0].location) || !this._isAlright) {
@@ -96,7 +104,7 @@ export default class Chat extends React.Component {
         }
 
         if (this._isMounted === true) {
-            fetch('http://whatthecommit.com/index.txt',
+            fetch('http://newsassistants.net/api/message/' + messages[0].text,
                 { method: 'get', mode: 'cors' })
                 .then(response => {
                     response.text().then(text => {
@@ -157,6 +165,8 @@ export default class Chat extends React.Component {
         return (
             <CustomBubble
                 {...props}
+                handleUpvote={this.handleUpvote}
+                handleDownvote={this.handleDownvote}
             />
         );
     };

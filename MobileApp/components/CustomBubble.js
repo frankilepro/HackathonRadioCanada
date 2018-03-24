@@ -13,16 +13,16 @@ export default class CustomBubble extends React.Component {
 
     handleUpvote = () => {
         this.setState({ rated: true });
+        this.props.handleUpvote();
     };
 
     handleDownvote = () => {
         this.setState({ rated: true });
-
+        this.props.handleDownvote();
     };
 
     handleDismiss = () => {
         this.setState({ rated: true });
-
     };
 
     render() {
