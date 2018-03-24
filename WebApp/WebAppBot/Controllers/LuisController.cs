@@ -23,7 +23,9 @@ namespace WebAppBot.Controllers
         [HttpGet("{message}")]
         public async Task<string> GetAsync(string message)
         {
-            var res = await hClient.GetStringAsync("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/2fe3ec12-071c-41c4-9e0c-948ca9c1198f?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=" + message);
+            var res = await hClient.GetStringAsync(
+                "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q="
+                + message);
             Console.WriteLine(res);
             return res;
         }
