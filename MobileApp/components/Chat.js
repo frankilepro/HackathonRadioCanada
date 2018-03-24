@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-import VoiceModule from "./Voice";
+import Tts from 'react-native-tts';
+import VoiceRecognition from "./Voice";
 
 previous_messages = [
     /*
@@ -35,6 +36,9 @@ export default class Chat extends React.Component {
 
         this._isMounted = false;
         this._isAlright = null;
+
+        Tts.setDucking(true);
+        Tts.setDefaultLanguage('fr-CA');
     }
 
     componentWillMount() {
@@ -96,6 +100,10 @@ export default class Chat extends React.Component {
                 .then(response => {
                     response.text().then(text => {
                         messages[0].received = true;
+                        Tts.getInitStatus().then(() => {
+                            Tts.speak(text);
+                        });
+
                         this.onReceive(text);
                         this.setState({ typingText: null });
                     });
@@ -124,7 +132,7 @@ export default class Chat extends React.Component {
 
     renderCustomActions = (props) => {
         return (
-            <VoiceModule/>
+            <VoiceRecognition/>
         );
     };
 
@@ -139,7 +147,7 @@ export default class Chat extends React.Component {
                 }}
             />
         );
-    }
+    };
 
     renderFooter = (props) => {
         if (this.state.typingText) {
@@ -152,31 +160,6 @@ export default class Chat extends React.Component {
             );
         }
         return null;
-    };
-
-    onLongPress = (context, message) => {
-        if(message.user._id !== this.state.id){
-            const options = [
-                'Upvote',
-                'Downvote',
-                'Cancel'
-            ];
-            const cancelButtonIndex = options.length - 1;
-            context.actionSheet().showActionSheetWithOptions({
-                    options,
-                    cancelButtonIndex,
-                },
-                (buttonIndex) => {
-                    switch (buttonIndex) {
-                        case 0:
-                            alert("You liked it");
-                            break;
-                        case 1:
-                            alert("You disliked it");
-                            break;
-                    }
-                });
-        }
     };
 
     render() {
@@ -195,7 +178,6 @@ export default class Chat extends React.Component {
                 renderActions={this.renderCustomActions}
                 renderBubble={this.renderBubble}
                 renderFooter={this.renderFooter}
-                onLongPress={this.onLongPress}
             />
         );
     }
