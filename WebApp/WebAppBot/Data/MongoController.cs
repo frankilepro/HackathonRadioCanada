@@ -32,8 +32,8 @@ namespace WebAppBot.Data
             var articleCollection = Db.GetCollection<Article>("articles");
             var article = articleCollection.Find(x => x.Id == articleId).First();
 
-            List<float> newVector = new List<float>();
-            for (int i = 0; i < user.Vector.Count; i++)
+            var newVector = new List<float>();
+            for (var i = 0; i < user.Vector.Count; i++)
             {
                 if (isPositive)
                 {
@@ -51,9 +51,9 @@ namespace WebAppBot.Data
         public static List<Article> GetArticlesByCategory(string cat)
         {
             var articlesCollection = Db.GetCollection<Article>("articles");
-            var articles = articlesCollection.Find(x => x.themeTag.name.Contains(cat)).ToList().Take(3).ToList();
-
-            return articles;
+            var aajsdh = articlesCollection.Find(x => true).ToList();
+            // var articles = articlesCollection.Find(x => x.ThemeTag.Name.Contains(cat)).ToList().Take(3).ToList();
+            return aajsdh;
         }
     }
 }
