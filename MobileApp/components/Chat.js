@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
 import Tts from 'react-native-tts';
 import VoiceRecognition from "./Voice";
+import CustomBubble from './CustomBubble';
 
 previous_messages = [
     /*
@@ -130,9 +131,32 @@ export default class Chat extends React.Component {
         });
     };
 
+    handleVoice = (text) => {
+        let message = {
+            _id: Math.round(Math.random() * 1000000),
+            text: text,
+            createdAt: new Date(),
+            user: {
+                _id: this.props.id,
+            },
+        };
+
+        this.onSend([message]);
+    };
+
     renderCustomActions = (props) => {
         return (
-            <VoiceRecognition/>
+            <VoiceRecognition
+                handleSendVoice={this.handleVoice}
+            />
+        );
+    };
+
+    renderCustomView = (props) => {
+        return (
+            <CustomBubble
+                {...props}
+            />
         );
     };
 
@@ -178,6 +202,7 @@ export default class Chat extends React.Component {
                 renderActions={this.renderCustomActions}
                 renderBubble={this.renderBubble}
                 renderFooter={this.renderFooter}
+                //renderCustomView={this.renderCustomView}
             />
         );
     }
