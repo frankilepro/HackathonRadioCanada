@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using WebAppBot.Model;
 
 namespace WebAppBot.Data
 {
@@ -17,15 +19,32 @@ namespace WebAppBot.Data
 
         public static async Task PostDocument<T>(T doc, string collName)
         {
-        
             var collection = Db.GetCollection<T>(collName);
             await collection.InsertOneAsync(doc);
         }
 
-        // public static async Task GetDocument<T>(T model, string collName)
-        // {
-        //     var collection = Db.GetCollection<T>(collName);
-        //     await collection.FindAsync(model.Id);
-        // }
+        public static void UpdatePreferences(int userId, string articleId, bool isPositive)
+        {
+            var userCollection = Db.GetCollection<Preference>("user");
+            var user = userCollection.Find(x => x.Id == userId).First();
+
+            var articleCollection = Db.GetCollection<Article>("articles");
+            var article = articleCollection.Find(x => x.Id == articleId).First();
+
+            List<float> newVector = new List<float>();
+            for (int i = 0; i < user.Vector.Count; i++)
+            {
+                if (isPositive)
+                {
+                    newVector[i] = (user.NbArticles * user.Vector[i] + article.Vector[i]) / (user.NbArticles + 1);
+                }
+                else
+                {
+                    newVector[i] = ((user.NbArticles + 1) * user.Vector[i] - article.Vector[i]) / user.NbArticles;
+                }
+            }
+
+            userCollection.UpdateOne(x => x.Id == userId, Builders<Preference>.Update.Set("vector", newVector));
+        }
     }
 }
