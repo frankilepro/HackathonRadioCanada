@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
 import Tts from 'react-native-tts';
 import VoiceRecognition from "./Voice";
+import CustomBubble from './CustomBubble';
 
 previous_messages = [
     /*
@@ -83,6 +84,14 @@ export default class Chat extends React.Component {
         this.process(messages);
     };
 
+    handleUpvote = () => {
+        alert("up");
+    };
+
+    handleDownvote = () => {
+        alert("down");
+    };
+
     process = (messages) => {
         if (messages.length > 0) {
             if ((messages[0].image || messages[0].location) || !this._isAlright) {
@@ -95,7 +104,7 @@ export default class Chat extends React.Component {
         }
 
         if (this._isMounted === true) {
-            fetch('http://whatthecommit.com/index.txt',
+            fetch('http://newsassistants.net/api/message/' + messages[0].text,
                 { method: 'get', mode: 'cors' })
                 .then(response => {
                     response.text().then(text => {
@@ -125,14 +134,40 @@ export default class Chat extends React.Component {
                         name: 'News Assistant',
                         avatar: 'https://pbs.twimg.com/profile_images/958444996176232448/YhMYOu4R_400x400.jpg',
                     },
+                    rated: false,
                 }),
             };
         });
     };
 
+    handleVoice = (text) => {
+        let message = {
+            _id: Math.round(Math.random() * 1000000),
+            text: text,
+            createdAt: new Date(),
+            user: {
+                _id: this.props.id,
+            },
+        };
+
+        this.onSend([message]);
+    };
+
     renderCustomActions = (props) => {
         return (
-            <VoiceRecognition/>
+            <VoiceRecognition
+                handleSendVoice={this.handleVoice}
+            />
+        );
+    };
+
+    renderCustomView = (props) => {
+        return (
+            <CustomBubble
+                {...props}
+                handleUpvote={this.handleUpvote}
+                handleDownvote={this.handleDownvote}
+            />
         );
     };
 
@@ -178,6 +213,7 @@ export default class Chat extends React.Component {
                 renderActions={this.renderCustomActions}
                 renderBubble={this.renderBubble}
                 renderFooter={this.renderFooter}
+                renderCustomView={this.renderCustomView}
             />
         );
     }

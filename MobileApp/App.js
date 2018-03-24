@@ -24,6 +24,7 @@ export default class App extends React.Component {
         if (this.state.logged) {
             ElementToRender = <Chat id={this.state.id}/>;
         }
+
         return (
             <View style={styles.container}>
                 {ElementToRender}

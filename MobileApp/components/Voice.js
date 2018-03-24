@@ -58,9 +58,8 @@ export default class VoiceRecognition extends React.Component {
         this.setState({
             results: e.value,
         });
-        this.state.results.map((result, index) => {
-           alert(result);
-        });
+
+        this.props.handleSendVoice(this.state.results[0]);
     }
 
     onSpeechPartialResults(e) {
@@ -149,6 +148,7 @@ export default class VoiceRecognition extends React.Component {
         return (
             <Icon
                 name="mic"
+                size={40}
                 color={this.state.color}
                 onPress={this.toggleRecord}
             />
