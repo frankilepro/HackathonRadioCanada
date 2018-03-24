@@ -126,6 +126,7 @@ export default class Chat extends React.Component {
                         name: 'News Assistant',
                         avatar: 'https://pbs.twimg.com/profile_images/958444996176232448/YhMYOu4R_400x400.jpg',
                     },
+                    rated: false,
                 }),
             };
         });
@@ -202,7 +203,7 @@ export default class Chat extends React.Component {
                 renderActions={this.renderCustomActions}
                 renderBubble={this.renderBubble}
                 renderFooter={this.renderFooter}
-                //renderCustomView={this.renderCustomView}
+                renderCustomView={this.renderCustomView}
             />
         );
     }
