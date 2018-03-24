@@ -10,7 +10,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
+<<<<<<< HEAD
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.2" />
+=======
+    <PackageReference Include="MongoDB.Bson" Version="2.5.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.5.0" />
+>>>>>>> 94792208fcc492a32b8ab03d7f29d2d3e7c0fb6e
     <PackageReference Include="MongoDB.Driver.Core" Version="2.5.0" />
   </ItemGroup>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { GiftedChat, Actions, Bubble } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble } from 'react-native-gifted-chat';
+import VoiceModule from "./Voice";
 
 previous_messages = [
     /*
@@ -33,12 +34,6 @@ export default class Chat extends React.Component {
         };
 
         this._isMounted = false;
-        this.onSend = this.onSend.bind(this);
-        this.onReceive = this.onReceive.bind(this);
-        this.renderBubble = this.renderBubble.bind(this);
-        this.renderFooter = this.renderFooter.bind(this);
-        this.onLoadEarlier = this.onLoadEarlier.bind(this);
-
         this._isAlright = null;
     }
 
@@ -56,7 +51,7 @@ export default class Chat extends React.Component {
         this._isMounted = false;
     }
 
-    onLoadEarlier() {
+    onLoadEarlier = () => {
         this.setState((previousState) => {
             return {
                 isLoadingEarlier: true,
@@ -72,9 +67,9 @@ export default class Chat extends React.Component {
                 };
             });
         }
-    }
+    };
 
-    onSend(messages = []) {
+    onSend = (messages = []) => {
         this.setState((previousState) => {
             return {
                 messages: GiftedChat.append(previousState.messages, messages),
@@ -82,9 +77,9 @@ export default class Chat extends React.Component {
         });
 
         this.process(messages);
-    }
+    };
 
-    process(messages) {
+    process = (messages) => {
         if (messages.length > 0) {
             if ((messages[0].image || messages[0].location) || !this._isAlright) {
                 this.setState((previousState) => {
@@ -108,9 +103,9 @@ export default class Chat extends React.Component {
                 alert('Request failed', error);
             });
         }
-    }
+    };
 
-    onReceive(text) {
+    onReceive = (text) => {
         this.setState((previousState) => {
             return {
                 messages: GiftedChat.append(previousState.messages, {
@@ -125,28 +120,15 @@ export default class Chat extends React.Component {
                 }),
             };
         });
-    }
+    };
 
-    renderCustomActions(props) {
-        const options = {
-            'Upload picture': (props) => {
-                alert('option 1');
-            },
-            'Upload audio': (props) => {
-                alert('option 2');
-            },
-            'Cancel': () => {
-            }
-        };
+    renderCustomActions = (props) => {
         return (
-            <Actions
-                {...props}
-                options={options}
-            />
+            <VoiceModule/>
         );
-    }
+    };
 
-    renderBubble(props) {
+    renderBubble = (props) => {
         return (
             <Bubble
                 {...props}
@@ -159,7 +141,7 @@ export default class Chat extends React.Component {
         );
     }
 
-    renderFooter(props) {
+    renderFooter = (props) => {
         if (this.state.typingText) {
             return (
                 <View style={styles.footerContainer}>
@@ -170,7 +152,32 @@ export default class Chat extends React.Component {
             );
         }
         return null;
-    }
+    };
+
+    onLongPress = (context, message) => {
+        if(message.user._id !== this.state.id){
+            const options = [
+                'Upvote',
+                'Downvote',
+                'Cancel'
+            ];
+            const cancelButtonIndex = options.length - 1;
+            context.actionSheet().showActionSheetWithOptions({
+                    options,
+                    cancelButtonIndex,
+                },
+                (buttonIndex) => {
+                    switch (buttonIndex) {
+                        case 0:
+                            alert("You liked it");
+                            break;
+                        case 1:
+                            alert("You disliked it");
+                            break;
+                    }
+                });
+        }
+    };
 
     render() {
         return (
@@ -188,6 +195,7 @@ export default class Chat extends React.Component {
                 renderActions={this.renderCustomActions}
                 renderBubble={this.renderBubble}
                 renderFooter={this.renderFooter}
+                onLongPress={this.onLongPress}
             />
         );
     }
