@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import Chat from './components/Chat';
 import Login from "./components/Login";
 
@@ -25,9 +25,9 @@ export default class App extends React.Component {
             ElementToRender = <Chat id={this.state.id}/>;
         }
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="padding">
+            <View style={styles.container}>
                 {ElementToRender}
-            </KeyboardAvoidingView>
+            </View>
         );
     }
 }
