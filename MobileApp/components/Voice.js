@@ -32,6 +32,7 @@ export default class VoiceModule extends React.Component {
         return (
             <Icon
                 name="mic"
+                color={this.state.color}
                 onPress={this.handlePress}
             />
         );
