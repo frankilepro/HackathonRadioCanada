@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using WebAppBot.Model;
@@ -45,6 +46,14 @@ namespace WebAppBot.Data
             }
 
             userCollection.UpdateOne(x => x.Id == userId, Builders<Preference>.Update.Set("vector", newVector));
+        }
+
+        public static List<Article> GetArticlesByCategory(string cat)
+        {
+            var articlesCollection = Db.GetCollection<Article>("articles");
+            var articles = articlesCollection.Find(x => x.themeTag.name.Contains(cat)).ToList().Take(3).ToList();
+
+            return articles;
         }
     }
 }
