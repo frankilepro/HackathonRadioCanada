@@ -16,7 +16,7 @@ namespace WebAppBot.Model
     public class Topscoringintent
     {
         public string intent { get; set; }
-        public int score { get; set; }
+        public float score { get; set; }
     }
 
     public class Intent
