@@ -63,7 +63,7 @@ namespace WebAppBot.Controllers
             {
                 if (item.type.StartsWith("Categorie"))
                 {
-                    catLs.Add(item.entity);
+                    catLs.Add(item.type.Split("::")[0] + item.entity);
                 }
                 else if (item.type.StartsWith("builtin"))
                 {
@@ -98,7 +98,7 @@ namespace WebAppBot.Controllers
 
         private string HandleNone(Entity[] entities)
         {
-            return "handle none";
+            return "Je ne comprends pas votre intention ...";
         }
 
         [HttpGet("like/{id}/{isPositive}")]
