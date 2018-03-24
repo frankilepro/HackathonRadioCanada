@@ -21,7 +21,7 @@ namespace WebAppBot.Controllers
         [HttpGet("text/{text}")]
         public async Task<string> GetText([FromRoute]string text)
         {
-            HttpClient hClient = new HttpClient();
+            var hClient = new HttpClient();
             var res = await hClient.GetStringAsync(URL + text);
             var luis = JsonConvert.DeserializeObject<LuisModel>(res);
             switch (luis.topScoringIntent.intent)
@@ -43,23 +43,7 @@ namespace WebAppBot.Controllers
 
         private string HandleComment(Entity[] entities)
         {
-            var catLs = new List<string>();
-            var dateLs = new List<DateTime>();
-            foreach (var item in entities)
-            {
-                if (item.type.StartsWith("Categorie"))
-                {
-                    catLs.Add(item.entity);
-                }
-                else if (item.type.StartsWith("builtin"))
-                {
-                    var date = item.resolution.values.First().timex;
-                    if (DateTime.TryParse(date, out var day))
-                    {
-                        dateLs.Add(day);
-                    }
-                }
-            }
+            (var catLs, var dateLs) = GetLists(entities);
 
             var builder = new StringBuilder();
             if (dateLs.Count != 0)
@@ -80,6 +64,28 @@ namespace WebAppBot.Controllers
             }
             var resp = builder.ToString();
             return string.IsNullOrEmpty(resp) ? "Tout ceci est bizarre" : resp;
+        }
+
+        private (List<string> catLs, List<DateTime> dateLs) GetLists(Entity[] entities)
+        {
+            var catLs = new List<string>();
+            var dateLs = new List<DateTime>();
+            foreach (var item in entities)
+            {
+                if (item.type.StartsWith("Categorie"))
+                {
+                    catLs.Add(item.entity);
+                }
+                else if (item.type.StartsWith("builtin"))
+                {
+                    var date = item.resolution.values.First().timex;
+                    if (DateTime.TryParse(date, out var day))
+                    {
+                        dateLs.Add(day);
+                    }
+                }
+            }
+            return (catLs, dateLs);
         }
 
         private string HandleNone(Entity[] entities)
