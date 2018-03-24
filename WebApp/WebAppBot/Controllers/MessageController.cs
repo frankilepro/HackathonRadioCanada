@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using WebAppBot.Data;
 using WebAppBot.Model;
 
 namespace WebAppBot.Controllers
@@ -86,15 +87,18 @@ namespace WebAppBot.Controllers
             return "handle none";
         }
 
-        [HttpGet("like/{like}")]
-        public string GetLike([FromRoute]string like)
+        [HttpGet("like/{id}/{isPositive}")]
+        public string GetLike([FromRoute]string articleId, [FromRoute]bool isPositive)
         {
-            switch (like)
+            MongoController.UpdatePreferences(1, articleId, isPositive);
+            if (isPositive)
             {
-                case "like": return "Merci :)";
-                case "not like": return "Nous allons mettre à jour vos préférences, désolé.";
+                return "Merci :)";
             }
-            return "";
+            else
+            {
+                return "Nous allons mettre à jour vos préférences, désolé.";
+            }
         }
     }
 }
