@@ -6,7 +6,6 @@ export default class VoiceRecognition extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            recoding: false,
             color: 'gray',
             recognized: false,
             pitch: false,
@@ -33,6 +32,7 @@ export default class VoiceRecognition extends React.Component {
     onSpeechStart(e) {
         this.setState({
             started: true,
+            color: 'red'
         });
     }
 
@@ -44,13 +44,17 @@ export default class VoiceRecognition extends React.Component {
 
     onSpeechEnd(e) {
         this.setState({
-            end: true
+            started: false,
+            end: true,
+            color: 'gray'
         });
     }
 
     onSpeechError(e) {
         this.setState({
             error: JSON.stringify(e.error),
+            started: false,
+            color: 'gray'
         });
     }
 
@@ -76,7 +80,6 @@ export default class VoiceRecognition extends React.Component {
 
     async _startRecognizing(e) {
         this.setState({
-            recording: true,
             recognized: false,
             pitch: false,
             error: false,
@@ -84,7 +87,6 @@ export default class VoiceRecognition extends React.Component {
             results: [],
             partialResults: [],
             end: false,
-            color: 'red'
         });
         try {
             await Voice.start('fr-CA');
@@ -94,11 +96,6 @@ export default class VoiceRecognition extends React.Component {
     }
 
     async _stopRecognizing(e) {
-        this.setState({
-            recording: false,
-            color: 'gray'
-        });
-
         try {
             await Voice.stop();
         } catch (e) {
@@ -106,33 +103,8 @@ export default class VoiceRecognition extends React.Component {
         }
     }
 
-    async _cancelRecognizing(e) {
-        try {
-            await Voice.cancel();
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    async _destroyRecognizer(e) {
-        try {
-            await Voice.destroy();
-        } catch (e) {
-            console.error(e);
-        }
-        this.setState({
-            recognized: false,
-            pitch: false,
-            error: false,
-            started: false,
-            results: [],
-            partialResults: [],
-            end: false
-        });
-    }
-
     toggleRecord = () => {
-        if (this.state.recording) {
+        if (this.state.started) {
             this._stopRecognizing().catch(() => alert("Error stopping"));
         } else {
             if(!Voice.isAvailable()){
@@ -148,7 +120,8 @@ export default class VoiceRecognition extends React.Component {
         return (
             <Icon
                 name="mic"
-                size={40}
+                accessibilityLabel="Microphone"
+                size={48}
                 color={this.state.color}
                 onPress={this.toggleRecord}
             />

@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-import Tts from 'react-native-tts';
 import VoiceRecognition from "./Voice";
 import CustomBubble from './CustomBubble';
 
@@ -17,10 +16,6 @@ previous_messages = [
         },
         sent: true,
         received: true,
-        // location: {
-        //   latitude: 48.864601,
-        //   longitude: 2.398704
-        // },
     }*/
 ];
 
@@ -30,16 +25,11 @@ export default class Chat extends React.Component {
         this.state = {
             id: props.id,
             messages: [],
-            loadEarlier: true,
             typingText: null,
-            isLoadingEarlier: false,
         };
 
         this._isMounted = false;
         this._isAlright = null;
-
-        Tts.setDucking(true);
-        Tts.setDefaultLanguage('fr-CA');
     }
 
     componentWillMount() {
@@ -55,24 +45,6 @@ export default class Chat extends React.Component {
     componentWillUnmount() {
         this._isMounted = false;
     }
-
-    onLoadEarlier = () => {
-        this.setState((previousState) => {
-            return {
-                isLoadingEarlier: true,
-            };
-        });
-
-        if (this._isMounted === true) {
-            this.setState((previousState) => {
-                return {
-                    messages: GiftedChat.prepend(previousState.messages, previous_messages),
-                    loadEarlier: false,
-                    isLoadingEarlier: false,
-                };
-            });
-        }
-    };
 
     onSend = (messages = []) => {
         this.setState((previousState) => {
@@ -97,27 +69,26 @@ export default class Chat extends React.Component {
             if ((messages[0].image || messages[0].location) || !this._isAlright) {
                 this.setState((previousState) => {
                     return {
-                        typingText: 'The assistant is processing your request'
+                        typingText: "Je traite votre requête..."
                     };
                 });
             }
         }
 
         if (this._isMounted === true) {
-            fetch('http://newsassistants.net/api/message/' + messages[0].text,
+            fetch('http://newsassistants.net/api/message/text/' + messages[0].text,
                 { method: 'get', mode: 'cors' })
                 .then(response => {
                     response.text().then(text => {
                         messages[0].received = true;
-                        Tts.getInitStatus().then(() => {
-                            Tts.speak(text);
-                        });
 
                         this.onReceive(text);
                         this.setState({ typingText: null });
                     });
                 }).catch((error) => {
-                alert('Request failed', error);
+                this.setState({
+                    typingText: "Je n'ai pas réussi à me connecter au serveur :("
+                });
             });
         }
     };
@@ -202,9 +173,6 @@ export default class Chat extends React.Component {
             <GiftedChat
                 messages={this.state.messages}
                 onSend={this.onSend}
-                loadEarlier={this.state.loadEarlier}
-                onLoadEarlier={this.onLoadEarlier}
-                isLoadingEarlier={this.state.isLoadingEarlier}
 
                 user={{
                     _id: this.props.id,
@@ -214,6 +182,9 @@ export default class Chat extends React.Component {
                 renderBubble={this.renderBubble}
                 renderFooter={this.renderFooter}
                 renderCustomView={this.renderCustomView}
+                textInputProps={{
+                    placeholder: "Parlez moi"
+                }}
             />
         );
     }
