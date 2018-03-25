@@ -46,7 +46,7 @@ namespace WebAppBot.Controllers
 
         private JsonResult HandleGetNews(Entity[] entities)
         {
-            if (entities.Length == 0) return "";
+            if (entities.Length == 0) return Json("");
 
             string categoryType = "";
             foreach (var entity in entities)
@@ -59,7 +59,7 @@ namespace WebAppBot.Controllers
 
             var suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
 
-            return Json(suggestedArticles)
+            return Json(suggestedArticles);
             // return JsonConvert.SerializeObject(suggestedArticles);
         }
 
