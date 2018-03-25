@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.WindowsAzure.Storage;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using WebAppBot.Data;
@@ -15,6 +17,7 @@ namespace WebAppBot.Controllers
     [Route("api/[controller]")]
     public class MessageController : Controller
     {
+        const string CONN = "DefaultEndpointsProtocol=https;AccountName=hackrc;AccountKey=u9HV3MqCpl+W9EuSgE9n7qVa/CN3DcMP0L1+P3nkJomfiElOEe7N0Fd9HeZpn5F6gPYsSzuXvp1uW+sYx1jHVA==;EndpointSuffix=core.windows.net";
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
         static int CurrentId = 0;
@@ -119,6 +122,24 @@ namespace WebAppBot.Controllers
             {
                 return "Nous allons mettre à jour vos préférences, désolé.";
             }
+        }
+
+        [HttpGet("load/")]
+        public string Load()
+        {
+            if (CloudStorageAccount.TryParse(CONN, out var storageAccount))
+            {
+                var cloudContainerRef = storageAccount.CreateCloudBlobClient().
+                        GetContainerReference("hackrccontainer");
+
+                var cloudBlockBlob = cloudContainerRef.GetBlockBlobReference("wiki.fr.vec");
+                cloudBlockBlob.DownloadToFileAsync("wiki.fr.vec", FileMode.Create).Wait();
+            }
+            else
+            {
+                throw new Exception();
+            }
+            return "good";
         }
     }
 }
