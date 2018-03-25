@@ -50,7 +50,7 @@ namespace WebAppBot.Controllers
         {
             var lists = GetLists(entities);
             var suggestedArticles = MongoController.GetArticlesByEntities(lists.catLs, lists.dateLs);
-            return Json(suggestedArticles);
+            return Json(new ChatResponse { Type = 0, Value = suggestedArticles });
         }
 
         private JsonResult HandleComment(Entity[] entities)
@@ -75,7 +75,9 @@ namespace WebAppBot.Controllers
                 builder.Append($"Je vois que tu aimes bien: {string.Join(" , ", catLs)}");
             }
             var resp = builder.ToString();
-            return string.IsNullOrEmpty(resp) ? Json("Tout ceci est bizarre") : Json(resp);
+            return string.IsNullOrEmpty(resp) ?
+                Json(new ChatResponse { Type = 1, Value = "Tout ceci est bizarre" }) :
+                Json(new ChatResponse { Type = 1, Value = resp });
         }
 
         private (List<string> catLs, List<DateTime> dateLs) GetLists(Entity[] entities)
@@ -115,7 +117,7 @@ namespace WebAppBot.Controllers
 
         private JsonResult HandleNone(Entity[] entities)
         {
-            return Json("Je ne comprends pas votre intention ...");
+            return Json(new ChatResponse { Type = 1, Value = "Je ne comprends pas votre intention ..." });
         }
 
         [HttpGet("like/{articleId}/{isPositive}")]
@@ -324,5 +326,11 @@ namespace WebAppBot.Controllers
             }
             return Math.Sqrt(result);
         }
+    }
+
+    class ChatResponse
+    {
+        public int Type { get; set; }
+        public object Value { get; set; }
     }
 }
