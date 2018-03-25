@@ -108,7 +108,6 @@ namespace WebAppBot.Data
                 }
                 else
                 {
-<<<<<<< HEAD
                     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
                     foreach (var item in dateLs)
                     {
@@ -122,9 +121,6 @@ namespace WebAppBot.Data
                     var req = articlesCollection.Find(filter);
                     var count = req.Count();
                     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-=======
-
->>>>>>> 078d4bacb3146cf8a18efb1b0e72c6727a360595
                 }
             }
             
