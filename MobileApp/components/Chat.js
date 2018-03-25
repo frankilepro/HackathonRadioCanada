@@ -56,12 +56,9 @@ export default class Chat extends React.Component {
         this.process(messages);
     };
 
-    handleUpvote = () => {
-        alert("up");
-    };
-
-    handleDownvote = () => {
-        alert("down");
+    handleVote = (id, like) => {
+        let link = 'http://newsassistants.net/api/message/like/' + id + '/' + like;
+        fetch(link, { method: 'get', mode: 'cors' }).then();
     };
 
     process = (messages) => {
@@ -79,10 +76,15 @@ export default class Chat extends React.Component {
             fetch('http://newsassistants.net/api/message/text/' + messages[0].text,
                 { method: 'get', mode: 'cors' })
                 .then(response => {
-                    response.text().then(text => {
+                    response.json().then(response => {
                         messages[0].received = true;
 
-                        this.onReceive(text);
+                        if (response.type === 0) {
+                            this.onReceive(response.value[0].title, response.value[0].id, response.value[0].canonicalWebLink.href);
+                        } else {
+                            this.onReceive(response.value, null, null)
+                        }
+
                         this.setState({ typingText: null });
                     });
                 }).catch((error) => {
@@ -93,18 +95,27 @@ export default class Chat extends React.Component {
         }
     };
 
-    onReceive = (text) => {
+    onReceive = (text, article, link, image) => {
+        let displayedText;
+        if (link) {
+            displayedText = text + ' : ' + link;
+        } else {
+            displayedText = text;
+        }
+
         this.setState((previousState) => {
             return {
                 messages: GiftedChat.append(previousState.messages, {
                     _id: Math.round(Math.random() * 1000000),
-                    text: text,
+                    text: displayedText,
+                    article: article,
                     createdAt: new Date(),
                     user: {
                         _id: 1,
                         name: 'News Assistant',
                         avatar: 'https://pbs.twimg.com/profile_images/958444996176232448/YhMYOu4R_400x400.jpg',
                     },
+                    image: image,
                     rated: false,
                 }),
             };
@@ -136,8 +147,7 @@ export default class Chat extends React.Component {
         return (
             <CustomBubble
                 {...props}
-                handleUpvote={this.handleUpvote}
-                handleDownvote={this.handleDownvote}
+                handleVote={this.handleVote}
             />
         );
     };
@@ -183,7 +193,7 @@ export default class Chat extends React.Component {
                 renderFooter={this.renderFooter}
                 renderCustomView={this.renderCustomView}
                 textInputProps={{
-                    placeholder: "Parlez moi"
+                    placeholder: "Parlez moi..."
                 }}
             />
         );

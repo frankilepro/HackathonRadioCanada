@@ -13,12 +13,12 @@ export default class CustomBubble extends React.Component {
 
     handleUpvote = () => {
         this.setState({ rated: true });
-        this.props.handleUpvote();
+        this.props.handleVote(this.props.currentMessage.article, true);
     };
 
     handleDownvote = () => {
         this.setState({ rated: true });
-        this.props.handleDownvote();
+        this.props.handleVote(this.props.currentMessage.article, false);
     };
 
     handleDismiss = () => {
@@ -26,7 +26,9 @@ export default class CustomBubble extends React.Component {
     };
 
     render() {
-        if (!this.state.rated && this.props.currentMessage.user._id === 1) {
+        if (!this.state.rated &&
+            this.props.currentMessage.user._id === 1 &&
+            this.props.currentMessage.article) {
             return (
                 <View style={styles.container}>
                     <Icon
