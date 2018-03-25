@@ -25,7 +25,7 @@ namespace WebAppBot.Controllers
         const string CONN = "DefaultEndpointsProtocol=https;AccountName=hackrc;AccountKey=u9HV3MqCpl+W9EuSgE9n7qVa/CN3DcMP0L1+P3nkJomfiElOEe7N0Fd9HeZpn5F6gPYsSzuXvp1uW+sYx1jHVA==;EndpointSuffix=core.windows.net";
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
-        static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
+        public static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
         public static List<Article> Articles;
 
         [HttpGet("text/{text}")]
@@ -62,12 +62,12 @@ namespace WebAppBot.Controllers
             {
                 if (dateLs.Count == 1)
                 {
-                    builder.Append($"[ {dateLs[0].ToString("yyyy-MM-dd")} ] ");
+                    builder.Append($"[ {dateLs[0]:yyyy-MM-dd} ] ");
                 }
                 else
                 {
-                    builder.Append($"[ {dateLs[0].ToString("yyyy-MM-dd")}, " +
-                                     $"{dateLs[1].ToString("yyyy-MM-dd")} ] ");
+                    builder.Append($"[ {dateLs[0]:yyyy-MM-dd}, " +
+                                     $"{dateLs[1]:yyyy-MM-dd} ] ");
                 }
             }
             if (catLs.Count != 0)
@@ -84,6 +84,7 @@ namespace WebAppBot.Controllers
         {
             var categList = new List<string>();
             var dateList = new List<DateTime>();
+            if (entities.Length == 0) return (categList, dateList);
             foreach (var item in entities)
             {
                 if (item.type.StartsWith("Categorie"))
@@ -96,19 +97,6 @@ namespace WebAppBot.Controllers
                     if (DateTime.TryParse(date, out var day))
                     {
                         dateList.Add(day);
-                    }
-                }
-                else if (item.type.EndsWith("daterange"))
-                {
-                    var dateBegin = item.resolution.values.First().start;
-                    var dateEnd = item.resolution.values.First().end;
-                    if (DateTime.TryParse(dateBegin, out var day) && DateTime.TryParse(dateEnd, out var lDay))
-                    {
-                        while (day != lDay)
-                        {
-                            dateList.Add(day);
-                            day = day.AddDays(1);
-                        }
                     }
                 }
             }
@@ -317,7 +305,7 @@ namespace WebAppBot.Controllers
             }
         }
 
-        private double DistanceBetweenVecs(float[] vec1, float[] vec2)
+        public static double DistanceBetweenVecs(float[] vec1, float[] vec2)
         {
             double result = 0;
             for (int i = 0; i < 300; i++)
