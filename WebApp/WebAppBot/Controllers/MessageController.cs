@@ -152,12 +152,14 @@ namespace WebAppBot.Controllers
         [HttpGet("load/")]
         public string Load()
         {
+            if (Model.Count != 0) return "Le model est généré";
             Cts = new CancellationTokenSource();
             Cts.CancelAfter(5 * 60 * 1000);
             Task.Run(() => LongThread(), Cts.Token).
                 ContinueWith((_) =>
                 {
                     Ex = "fini";
+                    Seconds = (DateTime.Now - Debut).TotalSeconds;
                 });
             return "C'est partie";
         }
@@ -168,7 +170,6 @@ namespace WebAppBot.Controllers
         private void LongThread()
         {
             Debut = DateTime.Now;
-            int count = 0;
             using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (BufferedStream bs = new BufferedStream(fs))
@@ -180,7 +181,6 @@ namespace WebAppBot.Controllers
                         {
                             try
                             {
-                                ++count;
                                 var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x) && x.Length > 2);
                                 var toSkip = splitted.Count() - 300;
                                 var word = string.Join(" ", splitted.Take(toSkip));
@@ -203,6 +203,15 @@ namespace WebAppBot.Controllers
         public string Word([FromRoute]string word)
         {
             return Model.ContainsKey(word).ToString() + " " + Model.Count + " " + Seconds + " " + Ex;
+        }
+
+        [HttpGet("Update/")]
+        public string Update()
+        {
+            var Client = new MongoClient(MongoController.uri);
+            var Db = Client.GetDatabase(MongoController.db);
+            var collection = Db.GetCollection<Article>("articles");
+            return "nice";
         }
     }
 }

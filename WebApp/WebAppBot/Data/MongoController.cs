@@ -9,12 +9,13 @@ namespace WebAppBot.Data
 {
     internal static class MongoController
     {
+        public const string uri = "mongodb://hackrcdb:SPjTg21eZutZh3LhHE5hE1lMKB3oIrHT7aLOyqnihq30rqAifwy8Kbd5s2AYpkuk3gzzq3xevzZYF42uExh0SA==@hackrcdb.documents.azure.com:10255/?ssl=true&replicaSet=globaldb";
+        public const string db = "hackrcdb";
+
         private static MongoClient Client { get; set; }
         private static IMongoDatabase Db { get; set; }
         public static void Initialize()
         {
-            const string uri = "mongodb://hackrcdb:SPjTg21eZutZh3LhHE5hE1lMKB3oIrHT7aLOyqnihq30rqAifwy8Kbd5s2AYpkuk3gzzq3xevzZYF42uExh0SA==@hackrcdb.documents.azure.com:10255/?ssl=true&replicaSet=globaldb";
-            const string db = "hackrcdb";
             Client = new MongoClient(uri);
             Db = Client.GetDatabase(db);
         }
