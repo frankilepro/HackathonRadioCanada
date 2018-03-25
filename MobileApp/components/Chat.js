@@ -80,11 +80,15 @@ export default class Chat extends React.Component {
                         messages[0].received = true;
 
                         if (response.type === 0) {
+                            let image = null;
+                            if(response.value[0].summaryMultimediaItem.concreteImages !== null)
+                                image = response.value[0].summaryMultimediaItem.concreteImages[0].mediaLink.href;
+
                             this.onReceive(
                                 response.value[0].title,
                                 response.value[0].id,
                                 response.value[0].canonicalWebLink.href,
-                                response.value[0].summaryMultimediaItem.concreteImages[0].mediaLink.href
+                                image
                             );
                         } else {
                             this.onReceive(response.value, null, null)
