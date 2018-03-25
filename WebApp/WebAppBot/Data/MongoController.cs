@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,11 +50,27 @@ namespace WebAppBot.Data
             userCollection.UpdateOne(x => x.Id == userId, Builders<Preference>.Update.Set("vector", newVector));
         }
 
-        public static List<Article> GetArticlesByCategory(string categ)
+        public static List<Article> GetArticlesByEntities(List<string> catLs, List<DateTime> dateLs)
         {
             var articlesCollection = Db.GetCollection<Article>("articles");
-            var filter = Builders<Article>.Filter.Regex("themeTag.name", categ);
-            var articles = articlesCollection.Find(filter).ToList().Take(3).ToList();
+            var articles = new List<Article>();
+            FilterDefinition<Article> filter;
+            if (catLs.Count == 0)
+            {
+                if (dateLs.Count == 0)
+                {
+                    Random ran = new Random();
+                    filter = Builders<Article>.Filter.Empty;
+                    articles = articlesCollection.Find(filter).Skip(ran.Next(500)).Limit(3).ToList();
+                }
+                else
+                {
+                    
+                }
+            }
+            // filter = Builders<Article>.Filter.Regex("themeTag.name",
+            //     catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower());
+            // articles = articlesCollection.Find(filter).ToList().Take(3).ToList();
             return articles;
         }
     }
