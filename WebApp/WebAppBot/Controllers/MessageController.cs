@@ -155,6 +155,7 @@ namespace WebAppBot.Controllers
         }
 
         static DateTime Debut;
+        static string Ex = "";
         static double Seconds = 0;
         private void LongThread()
         {
@@ -169,13 +170,20 @@ namespace WebAppBot.Controllers
                         string line = sr.ReadLine();
                         while ((line = sr.ReadLine()) != null)
                         {
-                            ++count;
-                            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
-                            var toSkip = splitted.Count() - 300;
-                            var word = string.Join(" ", splitted.Take(toSkip));
-                            var vec = splitted.Skip(toSkip).
-                                               Select(x => float.Parse(x)).ToArray();
-                            Model.TryAdd(word, vec);
+                            try
+                            {
+                                ++count;
+                                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+                                var toSkip = splitted.Count() - 300;
+                                var word = string.Join(" ", splitted.Take(toSkip));
+                                var vec = splitted.Skip(toSkip).
+                                                   Select(x => float.Parse(x)).ToArray();
+                                Model.TryAdd(word, vec);
+                            }
+                            catch (Exception ex)
+                            {
+                                Ex = ex.Message;
+                            }
                         }
                     }
                 }
@@ -186,7 +194,7 @@ namespace WebAppBot.Controllers
         [HttpGet("word/{word}")]
         public string Word([FromRoute]string word)
         {
-            return Model.ContainsKey(word).ToString() + " " + Model.Count + " " + Seconds;
+            return Model.ContainsKey(word).ToString() + " " + Model.Count + " " + Seconds + " " + Ex;
         }
     }
 }
