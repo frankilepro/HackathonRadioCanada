@@ -11,6 +11,7 @@ namespace WebAppBot.Model
 
         [BsonRepresentation(BsonType.Double, AllowTruncation = true)]
         [BsonElement("vector")]
+        [BsonRepresentation(BsonType.Double, AllowTruncation=true)]
         public float[] Vector { get; set; }
 
         [BsonIgnore]
@@ -36,11 +37,10 @@ namespace WebAppBot.Model
 
         [BsonIgnore]
         [BsonElement("publishedFirstTimeAt")]
-        public System.DateTimeOffset PublishedFirstTimeAt { get; set; }
+        public string PublishedFirstTimeAt { get; set; }
 
-        [BsonIgnore]
         [BsonElement("publishedLastTimeAt")]
-        public System.DateTimeOffset PublishedLastTimeAt { get; set; }
+        public string PublishedLastTimeAt { get; set; }
 
         [BsonIgnore]
         [BsonElement("subSector")]
@@ -256,7 +256,7 @@ namespace WebAppBot.Model
         public SummaryImage SummaryImage { get; set; }
 
         [BsonElement("broadcastedFirstTimeAt")]
-        public System.DateTimeOffset BroadcastedFirstTimeAt { get; set; }
+        public string BroadcastedFirstTimeAt { get; set; }
 
         [BsonElement("credits")]
         public string Credits { get; set; }
@@ -265,7 +265,7 @@ namespace WebAppBot.Model
         public string Id { get; set; }
 
         [BsonElement("duration")]
-        public System.DateTimeOffset Duration { get; set; }
+        public string Duration { get; set; }
 
         [BsonElement("contentTypeClassificationTag")]
         public ContentType ContentTypeClassificationTag { get; set; }

@@ -50,6 +50,7 @@ namespace WebAppBot.Data
 
         public static List<Article> GetArticlesByEntities(List<string> catLs, List<DateTime> dateLs)
         {
+            Random ran = new Random();
             var articlesCollection = Db.GetCollection<Article>("articles");
             var articles = new List<Article>();
             FilterDefinition<Article> filter;
@@ -57,18 +58,76 @@ namespace WebAppBot.Data
             {
                 if (dateLs.Count == 0)
                 {
-                    Random ran = new Random();
                     filter = Builders<Article>.Filter.Empty;
-                    articles = articlesCollection.Find(filter).Skip(ran.Next(500)).Limit(3).ToList();
+                    var req = articlesCollection.Find(filter);
+                    var count = req.Count();
+                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+                }
+                else if (dateLs.Count == 1)
+                {
+                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
+                    
+                    var req = articlesCollection.Find(filter);
+                    var count = req.Count();
+                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
                 }
                 else
                 {
-
+                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
+                    foreach (var item in dateLs)
+                    {
+                        Console.WriteLine(item.ToString("yyyy-MM-dd"));
+                        filter = Builders<Article>.Filter.Or(filter,
+                            Builders<Article>.Filter.Regex("publishedLastTimeAt", item.ToString("yyyy-MM-dd")));
+                    }
+                    var req = articlesCollection.Find(filter);
+                    var count = req.Count();
+                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
                 }
             }
-            // filter = Builders<Article>.Filter.Regex("themeTag.name",
-            //     catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower());
-            // articles = articlesCollection.Find(filter).ToList().Take(3).ToList();
+            else
+            {
+                if (dateLs.Count == 0)
+                {
+                    Console.WriteLine(catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower());
+                    filter = Builders<Article>.Filter.Regex("themeTag.name",
+                        "Sport");
+                    var req = articlesCollection.Find(filter);
+                    var count = req.Count();
+                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+                }
+                else if (dateLs.Count == 1)
+                {
+                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
+                    filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
+                        catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
+                    
+                    var req = articlesCollection.Find(filter);
+                    var count = req.Count();
+                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+                }
+                else
+                {
+<<<<<<< HEAD
+                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
+                    foreach (var item in dateLs)
+                    {
+                        Console.WriteLine(item.ToString("yyyy-MM-dd"));
+                        filter = Builders<Article>.Filter.Or(filter,
+                            Builders<Article>.Filter.Regex("publishedLastTimeAt", item.ToString("yyyy-MM-dd")));
+                    }
+                    filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
+                        catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
+                    
+                    var req = articlesCollection.Find(filter);
+                    var count = req.Count();
+                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+=======
+
+>>>>>>> 078d4bacb3146cf8a18efb1b0e72c6727a360595
+                }
+            }
+            
             return articles;
         }
     }
