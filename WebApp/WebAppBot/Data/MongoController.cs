@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using WebAppBot.Model;
 
@@ -48,12 +49,12 @@ namespace WebAppBot.Data
             userCollection.UpdateOne(x => x.Id == userId, Builders<Preference>.Update.Set("vector", newVector));
         }
 
-        public static List<Article> GetArticlesByCategory(string cat)
+        public static List<Article> GetArticlesByCategory(string categ)
         {
             var articlesCollection = Db.GetCollection<Article>("articles");
-            var aajsdh = articlesCollection.Find(x => true).ToList();
-            // var articles = articlesCollection.Find(x => x.ThemeTag.Name.Contains(cat)).ToList().Take(3).ToList();
-            return aajsdh;
+            var filter = Builders<Article>.Filter.Regex("themeTag.name", categ);
+            var articles = articlesCollection.Find(filter).ToList().Take(3).ToList();
+            return articles;
         }
     }
 }

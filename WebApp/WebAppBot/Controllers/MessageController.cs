@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using WebAppBot.Data;
@@ -50,7 +51,7 @@ namespace WebAppBot.Controllers
                 }
             }
 
-            List<Article> suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
+            var suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
 
             return JsonConvert.SerializeObject(suggestedArticles);
         }

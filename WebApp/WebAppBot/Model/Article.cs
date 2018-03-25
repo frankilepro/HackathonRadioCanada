@@ -1,19 +1,27 @@
-using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace WebAppBot.Model
 {
-    public partial class Article
+    [BsonIgnoreExtraElements]
+    public class Article
     {
-        [BsonElement("vector")]
-        public List<float> Vector { get; set; }
+        [BsonId]
+        public ObjectId MongoId { get; set; }
 
+
+        [BsonElement("vector")]
+        public float[] Vector { get; set; }
+
+        [BsonIgnore]
         [BsonElement("selfLink")]
         public Link SelfLink { get; set; }
 
+        [BsonIgnore]
         [BsonElement("canonicalWebLink")]
         public Link CanonicalWebLink { get; set; }
 
+        [BsonIgnore]
         [BsonElement("contentType")]
         public ContentType ContentType { get; set; }
 
@@ -26,89 +34,116 @@ namespace WebAppBot.Model
         [BsonElement("summary")]
         public string Summary { get; set; }
 
+        [BsonIgnore]
         [BsonElement("publishedFirstTimeAt")]
         public System.DateTimeOffset PublishedFirstTimeAt { get; set; }
 
+        [BsonIgnore]
         [BsonElement("publishedLastTimeAt")]
         public System.DateTimeOffset PublishedLastTimeAt { get; set; }
 
+        [BsonIgnore]
         [BsonElement("subSector")]
         public SubSector SubSector { get; set; }
 
+        [BsonIgnore]
         [BsonElement("themeTag")]
         public ContentType ThemeTag { get; set; }
 
+        [BsonIgnore]
         [BsonElement("subThemeTags")]
         public ContentType[] SubThemeTags { get; set; }
 
+        [BsonIgnore]
         [BsonElement("regionTags")]
         public ContentType[] RegionTags { get; set; }
 
+        [BsonIgnore]
         [BsonElement("isOfRegionalInterestOnly")]
         public bool IsOfRegionalInterestOnly { get; set; }
 
+        [BsonIgnore]
         [BsonElement("subjectTags")]
         public object[] SubjectTags { get; set; }
 
+        [BsonIgnore]
         [BsonElement("customTags")]
         public object[] CustomTags { get; set; }
 
+        [BsonIgnore]
         [BsonElement("signatures")]
         public object[] Signatures { get; set; }
 
+        [BsonIgnore]
         [BsonElement("signaturesV2")]
         public object[] SignaturesV2 { get; set; }
 
+        [BsonIgnore]
         [BsonElement("pressAgencies")]
         public PressAgency[] PressAgencies { get; set; }
 
+        [BsonIgnore]
         [BsonElement("isDispatch")]
         public bool IsDispatch { get; set; }
 
+        [BsonIgnore]
         [BsonElement("areCommentsEnabled")]
         public bool AreCommentsEnabled { get; set; }
 
+        [BsonIgnore]
         [BsonElement("isWitnessInvitationEnabled")]
         public bool IsWitnessInvitationEnabled { get; set; }
 
+        [BsonIgnore]
         [BsonElement("summaryMultimediaItem")]
         public ShareableSummaryMultimediaContent SummaryMultimediaItem { get; set; }
 
+        [BsonIgnore]
         [BsonElement("summaryMultimediaContentForDetail")]
         public ShareableSummaryMultimediaContent SummaryMultimediaContentForDetail { get; set; }
 
+        [BsonIgnore]
         [BsonElement("summaryMultimediaContent")]
         public ShareableSummaryMultimediaContent SummaryMultimediaContent { get; set; }
 
+        [BsonIgnore]
         [BsonElement("body")]
         public Body Body { get; set; }
 
+        [BsonIgnore]
         [BsonElement("relatedContents")]
         public object[] RelatedContents { get; set; }
 
+        [BsonIgnore]
         [BsonElement("previousCanonicalWebLinks")]
         public object[] PreviousCanonicalWebLinks { get; set; }
 
+        [BsonIgnore]
         [BsonElement("geoTags")]
         public object[] GeoTags { get; set; }
 
+        [BsonIgnore]
         [BsonElement("primaryClassificationTag")]
         public PressAgency PrimaryClassificationTag { get; set; }
 
+        [BsonIgnore]
         [BsonElement("shareableTitle")]
         public string ShareableTitle { get; set; }
 
+        [BsonIgnore]
         [BsonElement("shareableSummary")]
         public string ShareableSummary { get; set; }
 
+        [BsonIgnore]
         [BsonElement("shareableSummaryMultimediaContent")]
         public ShareableSummaryMultimediaContent ShareableSummaryMultimediaContent { get; set; }
 
+        [BsonIgnore]
         [BsonElement("keyPhrases")]
         public string[] KeyPhrases { get; set; }
     }
 
-    public partial class Body
+    public class Body
     {
         [BsonElement("html")]
         public string Html { get; set; }
@@ -117,7 +152,7 @@ namespace WebAppBot.Model
         public Attachment[] Attachments { get; set; }
     }
 
-    public partial class Attachment
+    public class Attachment
     {
         [BsonElement("type")]
         public string Type { get; set; }
@@ -129,13 +164,13 @@ namespace WebAppBot.Model
         public HtmlSnippet HtmlSnippet { get; set; }
     }
 
-    public partial class Anchor
+    public class Anchor
     {
         [BsonElement("fragmentId")]
         public string FragmentId { get; set; }
     }
 
-    public partial class HtmlSnippet
+    public class HtmlSnippet
     {
         [BsonElement("id")]
         public string Id { get; set; }
@@ -153,13 +188,13 @@ namespace WebAppBot.Model
         public string Description { get; set; }
     }
 
-    public partial class Link
+    public class Link
     {
         [BsonElement("href")]
         public string Href { get; set; }
     }
 
-    public partial class ContentType
+    public class ContentType
     {
         [BsonElement("id")]
         public string Id { get; set; }
@@ -168,7 +203,7 @@ namespace WebAppBot.Model
         public string Name { get; set; }
     }
 
-    public partial class PressAgency
+    public class PressAgency
     {
         [BsonElement("id")]
         public string Id { get; set; }
@@ -180,7 +215,7 @@ namespace WebAppBot.Model
         public string CodeName { get; set; }
     }
 
-    public partial class ShareableSummaryMultimediaContent
+    public class ShareableSummaryMultimediaContent
     {
         [BsonElement("type")]
         public string Type { get; set; }
@@ -237,7 +272,7 @@ namespace WebAppBot.Model
         public ContentType ContentTypeClassificationTag { get; set; }
     }
 
-    public partial class SummaryImage
+    public class SummaryImage
     {
         [BsonElement("contentType")]
         public ContentType ContentType { get; set; }
@@ -261,7 +296,7 @@ namespace WebAppBot.Model
         public ConcreteImage[] ConcreteImages { get; set; }
     }
 
-    public partial class ConcreteImage
+    public class ConcreteImage
     {
         [BsonElement("mediaLink")]
         public Link MediaLink { get; set; }
@@ -276,7 +311,7 @@ namespace WebAppBot.Model
         public string DimensionRatio { get; set; }
     }
 
-    public partial class SubSector
+    public class SubSector
     {
         [BsonElement("id")]
         public string Id { get; set; }
