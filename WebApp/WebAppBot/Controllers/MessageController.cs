@@ -158,7 +158,7 @@ namespace WebAppBot.Controllers
             if (Model.Count != 0) return "Le model est généré";
             Cts = new CancellationTokenSource();
             Cts.CancelAfter(5 * 60 * 1000);
-            Task.Run(() => LongThread(), Cts.Token).
+            Task.Run(() => LongLoadThread(), Cts.Token).
                 ContinueWith((_) =>
                 {
                     Ex = "fini";
@@ -170,7 +170,9 @@ namespace WebAppBot.Controllers
         static DateTime Debut;
         static string Ex = "";
         static double Seconds = 0;
-        private void LongThread()
+        static double Counter = 0;
+
+        private void LongLoadThread()
         {
             Debut = DateTime.Now;
             using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -190,6 +192,7 @@ namespace WebAppBot.Controllers
                                 var vec = splitted.Skip(toSkip).
                                                    Select(x => float.Parse(x)).ToArray();
                                 Model.TryAdd(word, vec);
+                                Counter = Model.Count;
                             }
                             catch (Exception ex)
                             {
@@ -205,18 +208,34 @@ namespace WebAppBot.Controllers
         [HttpGet("word/{word}")]
         public string Word([FromRoute]string word)
         {
-            return Model.ContainsKey(word).ToString() + " " + Model.Count + " " + Seconds + " " + Ex;
+            return Model.ContainsKey(word).ToString() + " " + Counter + " " + Seconds + " " + Ex;
         }
 
         [HttpGet("UpdateArticles/")]
         public string UpdateArticles()
         {
+            Cts = new CancellationTokenSource();
+            Cts.CancelAfter(5 * 60 * 1000);
+            Task.Run(() => LongUpdateThread(), Cts.Token).
+                ContinueWith((_) =>
+                {
+                    Ex = "fini";
+                    Seconds = (DateTime.Now - Debut).TotalSeconds;
+                });
+            return "nice";
+        }
+
+        private void LongUpdateThread()
+        {
+            Counter = 0;
+            Debut = DateTime.Now;
             var Client = new MongoClient(MongoController.uri);
             var Db = Client.GetDatabase(MongoController.db);
             var collection = Db.GetCollection<Article>("articles");
             var filter = Builders<Article>.Filter.Empty;
             foreach (var item in collection.Find(filter).ToList())
             {
+                ++Counter;
                 var vecs = new List<float[]>();
                 foreach (var key in item.KeyPhrases)
                 {
@@ -251,7 +270,6 @@ namespace WebAppBot.Controllers
                 }
                 collection.UpdateOne(x => x.Id == item.Id, Builders<Article>.Update.Set("vector", rep));
             }
-            return "nice";
         }
     }
 }
