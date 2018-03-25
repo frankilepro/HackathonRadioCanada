@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -20,7 +21,8 @@ namespace WebAppBot.Controllers
         const string CONN = "DefaultEndpointsProtocol=https;AccountName=hackrc;AccountKey=u9HV3MqCpl+W9EuSgE9n7qVa/CN3DcMP0L1+P3nkJomfiElOEe7N0Fd9HeZpn5F6gPYsSzuXvp1uW+sYx1jHVA==;EndpointSuffix=core.windows.net";
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
-        static int CurrentId = 0;
+        static Dictionary<string, float[]> Model = new Dictionary<string, float[]>();
+        private object path;
 
         [HttpGet("text/{text}")]
         public async Task<string> GetText([FromRoute]string text)
@@ -113,7 +115,7 @@ namespace WebAppBot.Controllers
         [HttpGet("like/{id}/{isPositive}")]
         public string GetLike([FromRoute]string articleId, [FromRoute]bool isPositive)
         {
-            MongoController.UpdatePreferences(1, articleId, isPositive);
+            //MongoController.UpdatePreferences(1, articleId, isPositive);
             if (isPositive)
             {
                 return "Merci :)";
@@ -127,19 +129,48 @@ namespace WebAppBot.Controllers
         [HttpGet("download/")]
         public string Download()
         {
-            //if (CloudStorageAccount.TryParse(CONN, out var storageAccount))
-            //{
-            //    var cloudContainerRef = storageAccount.CreateCloudBlobClient().
-            //            GetContainerReference("hackrccontainer");
+            if (CloudStorageAccount.TryParse(CONN, out var storageAccount))
+            {
+                var cloudContainerRef = storageAccount.CreateCloudBlobClient().
+                        GetContainerReference("hackrccontainer");
 
-            //    var cloudBlockBlob = cloudContainerRef.GetBlockBlobReference("wiki.fr.vec");
-            //    cloudBlockBlob.DownloadToFileAsync("wiki.fr.vec", FileMode.Create).Wait();
-            //}
-            //else
-            //{
-            //    throw new Exception();
-            //}
+                var cloudBlockBlob = cloudContainerRef.GetBlockBlobReference("wiki.fr.vec");
+                cloudBlockBlob.DownloadToFileAsync("wiki.fr.vec", FileMode.Create).Wait();
+            }
+            else
+            {
+                return "bad";
+            }
             return "good";
+        }
+
+        [HttpGet("load/")]
+        public string Load()
+        {
+            var debut = DateTime.Now;
+            int count = 0;
+            using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (BufferedStream bs = new BufferedStream(fs))
+                {
+                    using (StreamReader sr = new StreamReader(bs))
+                    {
+                        string line = sr.ReadLine();
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            ++count;
+                            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+                            var toSkip = splitted.Count() - 300;
+                            var word = string.Join(" ", splitted.Take(toSkip));
+                            Debug.WriteLine(word);
+                            var vec = splitted.Skip(toSkip).
+                                               Select(x => float.Parse(x)).ToArray();
+                            Model.Add(word, vec);
+                        }
+                    }
+                }
+            }
+            return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + count;
         }
     }
 }
