@@ -31,6 +31,7 @@ export default class CustomBubble extends React.Component {
                 <View style={styles.container}>
                     <Icon
                         name="thumb-up"
+                        accessibilityLabel="Aimer ce contenu"
                         size={30}
                         color="#4080ff"
                         onPress={this.handleUpvote}
@@ -39,6 +40,7 @@ export default class CustomBubble extends React.Component {
                     />
                     <Icon
                         name="thumb-down"
+                        accessibilityLabel="Détester ce contenu"
                         size={30}
                         color="#e74c3c"
                         onPress={this.handleDownvote}
@@ -46,6 +48,7 @@ export default class CustomBubble extends React.Component {
                     />
                     <Icon
                         name="cancel"
+                        accessibilityLabel="Rester neutre"
                         size={30}
                         color="gray"
                         onPress={this.handleDismiss}
@@ -64,8 +67,10 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     iconContainer: {
+        paddingTop: 10,
+        paddingBottom: 10,
         paddingLeft: 10,
-        paddingRight: 10
+        paddingRight: 10,
     },
 });
 
