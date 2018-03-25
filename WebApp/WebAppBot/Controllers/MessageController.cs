@@ -26,7 +26,7 @@ namespace WebAppBot.Controllers
         private object path;
 
         [HttpGet("text/{text}")]
-        public async Task<string> GetText([FromRoute]string text)
+        public async Task<JsonResult> GetText([FromRoute]string text)
         {
             var hClient = new HttpClient();
             var res = await hClient.GetStringAsync(URL + text);
@@ -43,7 +43,7 @@ namespace WebAppBot.Controllers
             }
         }
 
-        private string HandleGetNews(Entity[] entities)
+        private JsonResult HandleGetNews(Entity[] entities)
         {
             if (entities.Length == 0) return "";
 
@@ -58,10 +58,11 @@ namespace WebAppBot.Controllers
 
             var suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
 
-            return JsonConvert.SerializeObject(suggestedArticles);
+            return Json(suggestedArticles)
+            // return JsonConvert.SerializeObject(suggestedArticles);
         }
 
-        private string HandleComment(Entity[] entities)
+        private JsonResult HandleComment(Entity[] entities)
         {
             (var catLs, var dateLs) = GetLists(entities);
 
@@ -83,7 +84,7 @@ namespace WebAppBot.Controllers
                 builder.Append($"Je vois que tu aimes bien: {string.Join(" , ", catLs)}");
             }
             var resp = builder.ToString();
-            return string.IsNullOrEmpty(resp) ? "Tout ceci est bizarre" : resp;
+            return string.IsNullOrEmpty(resp) ? Json("Tout ceci est bizarre") : Json(resp);
         }
 
         private (List<string> catLs, List<DateTime> dateLs) GetLists(Entity[] entities)
@@ -108,9 +109,9 @@ namespace WebAppBot.Controllers
             return (catLs, dateLs);
         }
 
-        private string HandleNone(Entity[] entities)
+        private JsonResult HandleNone(Entity[] entities)
         {
-            return "Je ne comprends pas votre intention ...";
+            return Json("Je ne comprends pas votre intention ...");
         }
 
         [HttpGet("like/{id}/{isPositive}")]
