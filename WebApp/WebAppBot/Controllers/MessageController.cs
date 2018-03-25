@@ -121,7 +121,7 @@ namespace WebAppBot.Controllers
         [HttpGet("like/{articleId}/{isPositive}")]
         public string GetLike([FromRoute]string articleId, [FromRoute]bool isPositive)
         {
-            MongoController.UpdatePreferences(1, articleId, isPositive);
+            MongoController.UpdatePreferences(articleId, isPositive);
             if (isPositive)
             {
                 return "Merci :)";

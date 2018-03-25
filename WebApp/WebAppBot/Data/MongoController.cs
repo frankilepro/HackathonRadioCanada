@@ -28,10 +28,10 @@ namespace WebAppBot.Data
             await collection.InsertOneAsync(doc);
         }
 
-        public static void UpdatePreferences(int userId, string articleID, bool isPositive)
+        public static void UpdatePreferences(string articleID, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
-            var user = userCollection.Find(x => x.Id == userId).First();
+            var user = userCollection.Find(x => x.UserId == 1).First();
 
             var article = MessageController.Articles.First(x => x.Id == articleID);
 
@@ -48,7 +48,8 @@ namespace WebAppBot.Data
                 }
             }
 
-            var res = userCollection.UpdateOne(x => x.Id == userId,
+            if (user.History == null) user.History = new List<string>();
+            var res = userCollection.UpdateOne(x => x.UserId == 1,
                 Builders<Preference>.Update.Set("vector", newVector)
                                            .Set("nb", ++user.NbArticles)
                                            .Set("history", new List<string>(user.History) { article.Id }));
@@ -56,7 +57,7 @@ namespace WebAppBot.Data
             {
                 userCollection.InsertOne(new Preference
                 {
-                    Id = 1,
+                    UserId = 1,
                     NbArticles = 1,
                     History = new List<string>() { article.Id },
                     Vector = newVector
