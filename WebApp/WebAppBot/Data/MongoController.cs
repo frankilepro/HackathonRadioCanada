@@ -48,11 +48,10 @@ namespace WebAppBot.Data
             }
 
             if (MessageController.User.History == null) MessageController.User.History = new List<string>();
-            MessageController.User.History.Add(article.Id);
             var res = userCollection.UpdateOne(x => x.UserId == 1,
                 Builders<Preference>.Update.Set("vector", newVector)
                                            .Set("nb", ++MessageController.User.NbArticles)
-                                           .Set("history", MessageController.User.History));
+                                           .Set("history", new List<string>(MessageController.User.History) { article.Id }));
             if (res.MatchedCount == 0)
             {
                 userCollection.InsertOne(new Preference
