@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using WebAppBot.Data;
 using WebAppBot.Model;
 using System.Threading;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebAppBot.Controllers
 {
@@ -47,7 +48,7 @@ namespace WebAppBot.Controllers
 
         private JsonResult HandleGetNews(Entity[] entities)
         {
-            
+
             var lists = GetLists(entities);
             var suggestedArticles = MongoController.GetArticlesByEntities(lists.catLs, lists.dateLs);
             return Json(suggestedArticles);
@@ -100,9 +101,9 @@ namespace WebAppBot.Controllers
                 {
                     var dateBegin = item.resolution.values.First().start;
                     var dateEnd = item.resolution.values.First().end;
-                    if(DateTime.TryParse(dateBegin, out var day) && DateTime.TryParse(dateEnd, out var lDay)) 
+                    if (DateTime.TryParse(dateBegin, out var day) && DateTime.TryParse(dateEnd, out var lDay))
                     {
-                        while (day != lDay) 
+                        while (day != lDay)
                         {
                             dateList.Add(day);
                             day = day.AddDays(1);
@@ -154,12 +155,14 @@ namespace WebAppBot.Controllers
         [HttpGet("load/")]
         public string Load()
         {
+            if (Model.Count != 0) return "Le model est généré";
             Cts = new CancellationTokenSource();
             Cts.CancelAfter(5 * 60 * 1000);
-            Task.Run(() => LongThread(), Cts.Token).
+            Task.Run(() => LongLoadThread(), Cts.Token).
                 ContinueWith((_) =>
                 {
                     Ex = "fini";
+                    Seconds = (DateTime.Now - Debut).TotalSeconds;
                 });
             return "C'est partie";
         }
@@ -167,10 +170,11 @@ namespace WebAppBot.Controllers
         static DateTime Debut;
         static string Ex = "";
         static double Seconds = 0;
-        private void LongThread()
+        static double Counter = 0;
+
+        private void LongLoadThread()
         {
             Debut = DateTime.Now;
-            int count = 0;
             using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (BufferedStream bs = new BufferedStream(fs))
@@ -182,13 +186,13 @@ namespace WebAppBot.Controllers
                         {
                             try
                             {
-                                ++count;
                                 var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x) && x.Length > 2);
                                 var toSkip = splitted.Count() - 300;
                                 var word = string.Join(" ", splitted.Take(toSkip));
                                 var vec = splitted.Skip(toSkip).
                                                    Select(x => float.Parse(x)).ToArray();
                                 Model.TryAdd(word, vec);
+                                Counter = Model.Count;
                             }
                             catch (Exception ex)
                             {
@@ -204,7 +208,68 @@ namespace WebAppBot.Controllers
         [HttpGet("word/{word}")]
         public string Word([FromRoute]string word)
         {
-            return Model.ContainsKey(word).ToString() + " " + Model.Count + " " + Seconds + " " + Ex;
+            return Model.ContainsKey(word).ToString() + " " + Counter + " " + Seconds + " " + Ex;
+        }
+
+        [HttpGet("UpdateArticles/")]
+        public string UpdateArticles()
+        {
+            Cts = new CancellationTokenSource();
+            Cts.CancelAfter(5 * 60 * 1000);
+            Task.Run(() => LongUpdateThread(), Cts.Token).
+                ContinueWith((_) =>
+                {
+                    Ex = "fini";
+                    Seconds = (DateTime.Now - Debut).TotalSeconds;
+                });
+            return "nice";
+        }
+
+        private void LongUpdateThread()
+        {
+            Counter = 0;
+            Debut = DateTime.Now;
+            var Client = new MongoClient(MongoController.uri);
+            var Db = Client.GetDatabase(MongoController.db);
+            var collection = Db.GetCollection<Article>("articles");
+            var filter = Builders<Article>.Filter.Empty;
+            foreach (var item in collection.Find(filter).ToList())
+            {
+                ++Counter;
+                var vecs = new List<float[]>();
+                foreach (var key in item.KeyPhrases)
+                {
+                    if (Model.TryGetValue(key, out var vec))
+                    {
+                        vecs.Add(vec);
+                    }
+                }
+                float[] rep;
+                if (vecs.Count > 0)
+                {
+                    rep = vecs[0];
+                    for (int i = 1; i < vecs.Count; i++)
+                    {
+                        for (int j = 0; j < 300; j++)
+                        {
+                            rep[j] += vecs[i][j];
+                        }
+                    }
+                    for (int j = 0; j < 300; j++)
+                    {
+                        rep[j] /= vecs.Count;
+                    }
+                }
+                else
+                {
+                    rep = new float[300];
+                    for (int j = 0; j < 300; j++)
+                    {
+                        rep[j] = 0;
+                    }
+                }
+                collection.UpdateOne(x => x.Id == item.Id, Builders<Article>.Update.Set("vector", rep));
+            }
         }
     }
 }

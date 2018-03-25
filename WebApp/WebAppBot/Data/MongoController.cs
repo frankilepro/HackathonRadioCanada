@@ -10,12 +10,13 @@ namespace WebAppBot.Data
 {
     internal static class MongoController
     {
+        public const string uri = "mongodb://hackrcdb:SPjTg21eZutZh3LhHE5hE1lMKB3oIrHT7aLOyqnihq30rqAifwy8Kbd5s2AYpkuk3gzzq3xevzZYF42uExh0SA==@hackrcdb.documents.azure.com:10255/?ssl=true&replicaSet=globaldb";
+        public const string db = "hackrcdb";
+
         private static MongoClient Client { get; set; }
         private static IMongoDatabase Db { get; set; }
         public static void Initialize()
         {
-            const string uri = "mongodb://hackrcdb:SPjTg21eZutZh3LhHE5hE1lMKB3oIrHT7aLOyqnihq30rqAifwy8Kbd5s2AYpkuk3gzzq3xevzZYF42uExh0SA==@hackrcdb.documents.azure.com:10255/?ssl=true&replicaSet=globaldb";
-            const string db = "hackrcdb";
             Client = new MongoClient(uri);
             Db = Client.GetDatabase(db);
         }
@@ -26,13 +27,10 @@ namespace WebAppBot.Data
             await collection.InsertOneAsync(doc);
         }
 
-        public static void UpdatePreferences(int userId, string articleId, bool isPositive)
+        public static void UpdatePreferences(int userId, Article article, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
             var user = userCollection.Find(x => x.Id == userId).First();
-
-            var articleCollection = Db.GetCollection<Article>("articles");
-            var article = articleCollection.Find(x => x.Id == articleId).First();
 
             var newVector = new List<float>();
             for (var i = 0; i < user.Vector.Count; i++)
@@ -110,6 +108,7 @@ namespace WebAppBot.Data
                 }
                 else
                 {
+<<<<<<< HEAD
                     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
                     foreach (var item in dateLs)
                     {
@@ -123,6 +122,9 @@ namespace WebAppBot.Data
                     var req = articlesCollection.Find(filter);
                     var count = req.Count();
                     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+=======
+
+>>>>>>> 078d4bacb3146cf8a18efb1b0e72c6727a360595
                 }
             }
             
