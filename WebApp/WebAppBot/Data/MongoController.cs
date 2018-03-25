@@ -30,7 +30,7 @@ namespace WebAppBot.Data
 
         public static void UpdatePreferences(string articleID, bool isPositive)
         {
-            var userCollection = Db.GetCollection<Preference>("MessageController.User");
+            var userCollection = Db.GetCollection<Preference>("user");
 
             var article = MessageController.Articles.First(x => x.Id == articleID);
 
@@ -48,10 +48,11 @@ namespace WebAppBot.Data
             }
 
             if (MessageController.User.History == null) MessageController.User.History = new List<string>();
+            MessageController.User.History.Add(article.Id);
             var res = userCollection.UpdateOne(x => x.UserId == 1,
                 Builders<Preference>.Update.Set("vector", newVector)
                                            .Set("nb", ++MessageController.User.NbArticles)
-                                           .Set("history", new List<string>(MessageController.User.History) { article.Id }));
+                                           .Set("history", new List<string>(MessageController.User.History)));
             if (res.MatchedCount == 0)
             {
                 userCollection.InsertOne(new Preference

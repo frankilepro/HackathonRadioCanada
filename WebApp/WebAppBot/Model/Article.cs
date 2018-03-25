@@ -92,7 +92,7 @@ namespace WebAppBot.Model
         [BsonElement("isWitnessInvitationEnabled")]
         public bool IsWitnessInvitationEnabled { get; set; }
 
-        [BsonIgnore]
+        //[BsonIgnore]
         [BsonElement("summaryMultimediaItem")]
         public ShareableSummaryMultimediaContent SummaryMultimediaItem { get; set; }
 
@@ -132,6 +132,7 @@ namespace WebAppBot.Model
         [BsonElement("shareableSummary")]
         public string ShareableSummary { get; set; }
 
+        [BsonIgnore]
         [BsonElement("shareableSummaryMultimediaContent")]
         public ShareableSummaryMultimediaContent ShareableSummaryMultimediaContent { get; set; }
 
@@ -211,8 +212,12 @@ namespace WebAppBot.Model
         public string CodeName { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ShareableSummaryMultimediaContent
     {
+        [BsonElement("concreteImages")]
+        public ConcreteImage[] ConcreteImages { get; set; }
+
         [BsonIgnore]
         [BsonElement("type")]
         public string Type { get; set; }
@@ -261,6 +266,7 @@ namespace WebAppBot.Model
         [BsonElement("summary")]
         public string Summary { get; set; }
 
+        [BsonIgnore]
         [BsonElement("summaryImage")]
         public SummaryImage SummaryImage { get; set; }
 
@@ -311,10 +317,12 @@ namespace WebAppBot.Model
         [BsonElement("imageCollection")]
         public string ImageCollection { get; set; }
 
+        [BsonIgnore]
         [BsonElement("concreteImages")]
         public ConcreteImage[] ConcreteImages { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ConcreteImage
     {
         [BsonElement("mediaLink")]
