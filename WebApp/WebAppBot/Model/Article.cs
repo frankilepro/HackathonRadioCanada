@@ -92,7 +92,7 @@ namespace WebAppBot.Model
         [BsonElement("isWitnessInvitationEnabled")]
         public bool IsWitnessInvitationEnabled { get; set; }
 
-        [BsonIgnore]
+        //[BsonIgnore]
         [BsonElement("summaryMultimediaItem")]
         public ShareableSummaryMultimediaContent SummaryMultimediaItem { get; set; }
 
@@ -212,98 +212,131 @@ namespace WebAppBot.Model
         public string CodeName { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ShareableSummaryMultimediaContent
     {
+        [BsonElement("concreteImages")]
+        public ConcreteImage[] ConcreteImages { get; set; }
+
+        [BsonIgnore]
         [BsonElement("type")]
         public string Type { get; set; }
 
+        [BsonIgnore]
         [BsonElement("selfLink")]
         public Link SelfLink { get; set; }
 
+        [BsonIgnore]
         [BsonElement("contentType")]
         public ContentType ContentType { get; set; }
 
+        [BsonIgnore]
         [BsonElement("futureId")]
         public string FutureId { get; set; }
 
+        [BsonIgnore]
         [BsonElement("contentSubtype")]
         public PressAgency ContentSubtype { get; set; }
 
+        [BsonIgnore]
         [BsonElement("primaryClassificationTag")]
         public PressAgency PrimaryClassificationTag { get; set; }
 
+        [BsonIgnore]
         [BsonElement("title")]
         public string Title { get; set; }
 
+        [BsonIgnore]
         [BsonElement("futureDuration")]
         public long FutureDuration { get; set; }
 
+        [BsonIgnore]
         [BsonElement("seekTime")]
         public long SeekTime { get; set; }
 
+        [BsonIgnore]
         [BsonElement("isExternalPlayAllowed")]
         public bool IsExternalPlayAllowed { get; set; }
 
+        [BsonIgnore]
         [BsonElement("downloadableFile")]
         public object DownloadableFile { get; set; }
 
+        [BsonIgnore]
         [BsonElement("summary")]
         public string Summary { get; set; }
 
+        [BsonIgnore]
         [BsonElement("summaryImage")]
         public SummaryImage SummaryImage { get; set; }
 
+        [BsonIgnore]
         [BsonElement("broadcastedFirstTimeAt")]
         public string BroadcastedFirstTimeAt { get; set; }
 
+        [BsonIgnore]
         [BsonElement("credits")]
         public string Credits { get; set; }
 
+        [BsonIgnore]
         [BsonElement("id")]
         public string Id { get; set; }
 
+        [BsonIgnore]
         [BsonElement("duration")]
         public string Duration { get; set; }
 
+        [BsonIgnore]
         [BsonElement("contentTypeClassificationTag")]
         public ContentType ContentTypeClassificationTag { get; set; }
     }
 
     public class SummaryImage
     {
+        [BsonIgnore]
         [BsonElement("contentType")]
         public ContentType ContentType { get; set; }
 
+        [BsonIgnore]
         [BsonElement("alt")]
         public string Alt { get; set; }
 
+        [BsonIgnore]
         [BsonElement("legend")]
         public string Legend { get; set; }
 
+        [BsonIgnore]
         [BsonElement("imageCredits")]
         public string ImageCredits { get; set; }
 
+        [BsonIgnore]
         [BsonElement("pressAgencies")]
         public PressAgency[] PressAgencies { get; set; }
 
+        [BsonIgnore]
         [BsonElement("imageCollection")]
         public string ImageCollection { get; set; }
 
+        [BsonIgnore]
         [BsonElement("concreteImages")]
         public ConcreteImage[] ConcreteImages { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ConcreteImage
     {
         [BsonElement("mediaLink")]
         public Link MediaLink { get; set; }
 
+        [BsonIgnore]
         [BsonElement("width")]
         public long Width { get; set; }
 
+        [BsonIgnore]
         [BsonElement("height")]
         public long Height { get; set; }
 
+        [BsonIgnore]
         [BsonElement("dimensionRatio")]
         public string DimensionRatio { get; set; }
     }

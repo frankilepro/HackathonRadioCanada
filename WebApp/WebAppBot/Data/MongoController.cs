@@ -31,29 +31,28 @@ namespace WebAppBot.Data
         public static void UpdatePreferences(string articleID, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
-            var user = userCollection.Find(x => x.UserId == 1).First();
 
             var article = MessageController.Articles.First(x => x.Id == articleID);
 
             var newVector = Enumerable.Repeat(0.0f, 300).ToArray();
-            for (var i = 0; i < user.Vector.Length; i++)
+            for (var i = 0; i < MessageController.User.Vector.Length; i++)
             {
                 if (isPositive)
                 {
-                    newVector[i] = (user.NbArticles * user.Vector[i] + article.Vector[i]) / (user.NbArticles + 1);
+                    newVector[i] = (MessageController.User.NbArticles * MessageController.User.Vector[i] + article.Vector[i]) / (MessageController.User.NbArticles + 1);
                 }
                 else
                 {
-                    newVector[i] = ((user.NbArticles + 1) * user.Vector[i] - article.Vector[i]) / user.NbArticles;
+                    newVector[i] = ((MessageController.User.NbArticles + 1) * MessageController.User.Vector[i] - article.Vector[i]) / MessageController.User.NbArticles;
                 }
             }
 
-            if (user.History == null) user.History = new List<string>();
-            var allo = new List<string>(user.History) { article.Id };
+            if (MessageController.User.History == null) MessageController.User.History = new List<string>();
+            MessageController.User.History.Add(article.Id);
             var res = userCollection.UpdateOne(x => x.UserId == 1,
                 Builders<Preference>.Update.Set("vector", newVector)
-                                           .Set("nb", ++user.NbArticles)
-                                           .Set("history", allo));
+                                           .Set("nb", ++MessageController.User.NbArticles)
+                                           .Set("history", new List<string>(MessageController.User.History)));
             if (res.MatchedCount == 0)
             {
                 userCollection.InsertOne(new Preference
@@ -82,7 +81,7 @@ namespace WebAppBot.Data
             else
             {
                 ls = MessageController.Articles.OrderBy(
-                    x => MessageController.DistanceBetweenVecs(x.Vector, User.Vector)).Take(10).ToList();
+                    x => MessageController.DistanceBetweenVecs(x.Vector, MessageController.User.Vector)).Take(10).ToList();
             }
 
 

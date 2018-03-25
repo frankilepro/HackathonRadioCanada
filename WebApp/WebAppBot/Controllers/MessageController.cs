@@ -27,6 +27,7 @@ namespace WebAppBot.Controllers
 
         public static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
         public static List<Article> Articles;
+        public static Preference User;
 
         [HttpGet("text/{text}")]
         public async Task<JsonResult> GetText([FromRoute]string text)
@@ -158,9 +159,12 @@ namespace WebAppBot.Controllers
         {
             var Client = new MongoClient(MongoController.uri);
             var Db = Client.GetDatabase(MongoController.db);
-            var collection = Db.GetCollection<Article>("articles");
+            var artCollection = Db.GetCollection<Article>("articles");
             var filter = Builders<Article>.Filter.Empty;
-            Articles = collection.Find(filter).ToList();
+            Articles = artCollection.Find(filter).ToList();
+
+            var userCollection = Db.GetCollection<Preference>("user");
+            User = userCollection.Find(x => x.UserId == 1).First();
         }
 
         static DateTime Debut;
@@ -211,9 +215,9 @@ namespace WebAppBot.Controllers
         public string Test([FromRoute]string test)
         {
             if (Articles == null) return "null";
-            if (!int.TryParse(test, out int _) && Model.TryGetValue(test, out var vec))
+            if (!int.TryParse(test, out int _))
             {
-                var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, vec));
+                var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, User.Vector));
                 return string.Join(Environment.NewLine, ls.Select(x => x.Title));
             }
             var art = Articles.FirstOrDefault(x => x.Id == test);
