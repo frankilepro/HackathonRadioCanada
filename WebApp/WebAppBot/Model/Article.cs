@@ -9,7 +9,7 @@ namespace WebAppBot.Model
         [BsonId]
         public ObjectId MongoId { get; set; }
 
-
+        [BsonRepresentation(BsonType.Double, AllowTruncation = true)]
         [BsonElement("vector")]
         public float[] Vector { get; set; }
 
@@ -17,7 +17,6 @@ namespace WebAppBot.Model
         [BsonElement("selfLink")]
         public Link SelfLink { get; set; }
 
-        [BsonIgnore]
         [BsonElement("canonicalWebLink")]
         public Link CanonicalWebLink { get; set; }
 
@@ -36,11 +35,10 @@ namespace WebAppBot.Model
 
         [BsonIgnore]
         [BsonElement("publishedFirstTimeAt")]
-        public System.DateTimeOffset PublishedFirstTimeAt { get; set; }
+        public string PublishedFirstTimeAt { get; set; }
 
-        [BsonIgnore]
         [BsonElement("publishedLastTimeAt")]
-        public System.DateTimeOffset PublishedLastTimeAt { get; set; }
+        public string PublishedLastTimeAt { get; set; }
 
         [BsonIgnore]
         [BsonElement("subSector")]
@@ -138,7 +136,6 @@ namespace WebAppBot.Model
         [BsonElement("shareableSummaryMultimediaContent")]
         public ShareableSummaryMultimediaContent ShareableSummaryMultimediaContent { get; set; }
 
-        [BsonIgnore]
         [BsonElement("keyPhrases")]
         public string[] KeyPhrases { get; set; }
     }
@@ -257,7 +254,7 @@ namespace WebAppBot.Model
         public SummaryImage SummaryImage { get; set; }
 
         [BsonElement("broadcastedFirstTimeAt")]
-        public System.DateTimeOffset BroadcastedFirstTimeAt { get; set; }
+        public string BroadcastedFirstTimeAt { get; set; }
 
         [BsonElement("credits")]
         public string Credits { get; set; }
@@ -266,7 +263,7 @@ namespace WebAppBot.Model
         public string Id { get; set; }
 
         [BsonElement("duration")]
-        public System.DateTimeOffset Duration { get; set; }
+        public string Duration { get; set; }
 
         [BsonElement("contentTypeClassificationTag")]
         public ContentType ContentTypeClassificationTag { get; set; }

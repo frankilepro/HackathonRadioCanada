@@ -1,14 +1,17 @@
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace WebAppBot.Model
 {
-    internal class Preference
+    public class Preference
     {
+        [BsonId]
+        public ObjectId MongoId { get; set; }
         [BsonElement("userid")]
-        public int Id { get; set; }
+        public int UserId { get; set; }
         [BsonElement("vector")]
-        public List<float> Vector { get; set; }
+        public float[] Vector { get; set; }
         [BsonElement("nb")]
         public int NbArticles { get; set; }
         [BsonElement("history")]
