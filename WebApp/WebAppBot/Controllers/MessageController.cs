@@ -14,6 +14,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json;
 using WebAppBot.Data;
 using WebAppBot.Model;
+using System.Threading;
 
 namespace WebAppBot.Controllers
 {
@@ -147,10 +148,17 @@ namespace WebAppBot.Controllers
             return "good";
         }
 
+        static CancellationTokenSource Cts;
         [HttpGet("load/")]
         public string Load()
         {
-            Task.Run(() => LongThread());
+            Cts = new CancellationTokenSource();
+            Cts.CancelAfter(5 * 60 * 1000);
+            Task.Run(() => LongThread(), Cts.Token).
+                ContinueWith((_) =>
+                {
+                    Ex = "fini";
+                });
             return "C'est partie";
         }
 
@@ -173,7 +181,7 @@ namespace WebAppBot.Controllers
                             try
                             {
                                 ++count;
-                                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+                                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x) && x.Length > 2);
                                 var toSkip = splitted.Count() - 300;
                                 var word = string.Join(" ", splitted.Take(toSkip));
                                 var vec = splitted.Skip(toSkip).
