@@ -124,7 +124,7 @@ namespace WebAppBot.Controllers
         [HttpGet("like/{articleId}/{isPositive}")]
         public string GetLike([FromRoute]string articleId, [FromRoute]bool isPositive)
         {
-            MongoController.UpdatePreferences(1, articleId, isPositive);
+            MongoController.UpdatePreferences(articleId, isPositive);
             if (isPositive)
             {
                 return "Merci :)";
@@ -227,9 +227,9 @@ namespace WebAppBot.Controllers
         public string Test([FromRoute]string test)
         {
             if (Articles == null) return "null";
-            if (!int.TryParse(test, out int _) && Model.TryGetValue(test, out var vec))
+            if (!int.TryParse(test, out int _))
             {
-                var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, vec));
+                var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, User.Vector));
                 return string.Join(Environment.NewLine, ls.Select(x => x.Title));
             }
             var art = Articles.FirstOrDefault(x => x.Id == test);
