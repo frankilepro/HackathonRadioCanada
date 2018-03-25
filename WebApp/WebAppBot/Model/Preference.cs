@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace WebAppBot.Model
 {
-    internal class Preference
+    public class Preference
     {
         [BsonId]
         public ObjectId MongoId { get; set; }

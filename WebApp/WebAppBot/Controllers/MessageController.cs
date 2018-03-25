@@ -176,7 +176,7 @@ namespace WebAppBot.Controllers
             Articles = artCollection.Find(filter).ToList();
 
             var userCollection = Db.GetCollection<Preference>("user");
-            User = userCollection.Find(x => x.Id == 1).First();
+            User = userCollection.Find(x => x.UserId == 1).First();
         }
 
         static DateTime Debut;
