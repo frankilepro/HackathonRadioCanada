@@ -31,7 +31,7 @@ namespace WebAppBot.Data
         public static void UpdatePreferences(string articleID, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
-
+            //
             var article = MessageController.Articles.First(x => x.Id == articleID);
 
             var newVector = Enumerable.Repeat(0.0f, 300).ToArray();
