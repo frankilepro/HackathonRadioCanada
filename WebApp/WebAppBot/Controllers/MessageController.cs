@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,7 +22,7 @@ namespace WebAppBot.Controllers
         const string CONN = "DefaultEndpointsProtocol=https;AccountName=hackrc;AccountKey=u9HV3MqCpl+W9EuSgE9n7qVa/CN3DcMP0L1+P3nkJomfiElOEe7N0Fd9HeZpn5F6gPYsSzuXvp1uW+sYx1jHVA==;EndpointSuffix=core.windows.net";
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
-        static Dictionary<string, float[]> Model = new Dictionary<string, float[]>();
+        static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
         private object path;
 
         [HttpGet("text/{text}")]
@@ -145,32 +146,52 @@ namespace WebAppBot.Controllers
         }
 
         [HttpGet("load/")]
-        public string Load()
+        public async Task<string> Load()
         {
+            const int DefaultBufferSize = 4096;
+            const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
             var debut = DateTime.Now;
             int count = 0;
-            using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var stream = new FileStream("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
             {
-                using (BufferedStream bs = new BufferedStream(fs))
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
                 {
-                    using (StreamReader sr = new StreamReader(bs))
+                    string line = await reader.ReadLineAsync();
+                    while ((line = await reader.ReadLineAsync()) != null)
                     {
-                        string line = sr.ReadLine();
-                        while ((line = sr.ReadLine()) != null)
-                        {
-                            ++count;
-                            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
-                            var toSkip = splitted.Count() - 300;
-                            var word = string.Join(" ", splitted.Take(toSkip));
-                            Debug.WriteLine(word);
-                            var vec = splitted.Skip(toSkip).
-                                               Select(x => float.Parse(x)).ToArray();
-                            Model.Add(word, vec);
-                        }
+                        ++count;
+                        var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+                        var toSkip = splitted.Count() - 300;
+                        var word = string.Join(" ", splitted.Take(toSkip));
+                        Debug.WriteLine(word);
+                        var vec = splitted.Skip(toSkip).
+                                           Select(x => float.Parse(x)).ToArray();
+                        Model.TryAdd(word, vec);
                     }
                 }
             }
-            return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + count;
+            //using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //{
+            //    using (BufferedStream bs = new BufferedStream(fs))
+            //    {
+            //        using (StreamReader sr = new StreamReader(bs))
+            //        {
+            //            string line = sr.ReadLine();
+            //            while ((line = sr.ReadLine()) != null)
+            //            {
+            //                ++count;
+            //                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+            //                var toSkip = splitted.Count() - 300;
+            //                var word = string.Join(" ", splitted.Take(toSkip));
+            //                Debug.WriteLine(word);
+            //                var vec = splitted.Skip(toSkip).
+            //                                   Select(x => float.Parse(x)).ToArray();
+            //                Model.Add(word, vec);
+            //            }
+            //        }
+            //    }
+            //}
+            return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + Model.Count;
         }
     }
 }
