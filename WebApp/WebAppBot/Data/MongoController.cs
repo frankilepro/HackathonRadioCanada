@@ -31,7 +31,7 @@ namespace WebAppBot.Data
         public static void UpdatePreferences(int userId, string articleID, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
-            var user = userCollection.Find(x => x.Id == userId).First();
+            var user = MessageController.User;
 
             var article = MessageController.Articles.First(x => x.Id == articleID);
 

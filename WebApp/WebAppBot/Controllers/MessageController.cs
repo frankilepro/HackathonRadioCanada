@@ -27,6 +27,7 @@ namespace WebAppBot.Controllers
 
         static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
         public static List<Article> Articles;
+        public static Preference User;
 
         [HttpGet("text/{text}")]
         public async Task<JsonResult> GetText([FromRoute]string text)
@@ -170,9 +171,12 @@ namespace WebAppBot.Controllers
         {
             var Client = new MongoClient(MongoController.uri);
             var Db = Client.GetDatabase(MongoController.db);
-            var collection = Db.GetCollection<Article>("articles");
+            var artCollection = Db.GetCollection<Article>("articles");
             var filter = Builders<Article>.Filter.Empty;
-            Articles = collection.Find(filter).ToList();
+            Articles = artCollection.Find(filter).ToList();
+
+            var userCollection = Db.GetCollection<Preference>("user");
+            User = userCollection.Find(x => x.Id == 1).First();
         }
 
         static DateTime Debut;
