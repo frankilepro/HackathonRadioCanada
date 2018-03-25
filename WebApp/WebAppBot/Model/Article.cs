@@ -17,7 +17,6 @@ namespace WebAppBot.Model
         [BsonElement("selfLink")]
         public Link SelfLink { get; set; }
 
-        [BsonIgnore]
         [BsonElement("canonicalWebLink")]
         public Link CanonicalWebLink { get; set; }
 
