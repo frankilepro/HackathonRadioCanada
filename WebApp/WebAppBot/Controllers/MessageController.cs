@@ -156,9 +156,7 @@ namespace WebAppBot.Controllers
         public string Load()
         {
             if (Model.Count != 0) return "Le model est généré";
-            Cts = new CancellationTokenSource();
-            Cts.CancelAfter(5 * 60 * 1000);
-            Task.Run(() => LongLoadThread(), Cts.Token).
+            Task.Run(() => LongLoadThread()).
                 ContinueWith((_) =>
                 {
                     Ex = "fini";
@@ -242,9 +240,7 @@ namespace WebAppBot.Controllers
         [HttpGet("UpdateArticles/")]
         public string UpdateArticles()
         {
-            Cts = new CancellationTokenSource();
-            Cts.CancelAfter(5 * 60 * 1000);
-            Task.Run(() => LongUpdateThread(), Cts.Token).
+            Task.Run(() => LongUpdateThread()).
                 ContinueWith((_) =>
                 {
                     Ex = "fini";
