@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,11 +23,11 @@ namespace WebAppBot.Controllers
         const string CONN = "DefaultEndpointsProtocol=https;AccountName=hackrc;AccountKey=u9HV3MqCpl+W9EuSgE9n7qVa/CN3DcMP0L1+P3nkJomfiElOEe7N0Fd9HeZpn5F6gPYsSzuXvp1uW+sYx1jHVA==;EndpointSuffix=core.windows.net";
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
-        static Dictionary<string, float[]> Model = new Dictionary<string, float[]>();
+        static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
         private object path;
 
         [HttpGet("text/{text}")]
-        public async Task<string> GetText([FromRoute]string text)
+        public async Task<JsonResult> GetText([FromRoute]string text)
         {
             var hClient = new HttpClient();
             var res = await hClient.GetStringAsync(URL + text);
@@ -43,9 +44,9 @@ namespace WebAppBot.Controllers
             }
         }
 
-        private string HandleGetNews(Entity[] entities)
+        private JsonResult HandleGetNews(Entity[] entities)
         {
-            if (entities.Length == 0) return "";
+            if (entities.Length == 0) return Json("");
 
             string categoryType = "";
             foreach (var entity in entities)
@@ -58,10 +59,11 @@ namespace WebAppBot.Controllers
 
             var suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
 
-            return JsonConvert.SerializeObject(suggestedArticles);
+            return Json(suggestedArticles);
+            // return JsonConvert.SerializeObject(suggestedArticles);
         }
 
-        private string HandleComment(Entity[] entities)
+        private JsonResult HandleComment(Entity[] entities)
         {
             (var catLs, var dateLs) = GetLists(entities);
 
@@ -83,7 +85,7 @@ namespace WebAppBot.Controllers
                 builder.Append($"Je vois que tu aimes bien: {string.Join(" , ", catLs)}");
             }
             var resp = builder.ToString();
-            return string.IsNullOrEmpty(resp) ? "Tout ceci est bizarre" : resp;
+            return string.IsNullOrEmpty(resp) ? Json("Tout ceci est bizarre") : Json(resp);
         }
 
         private (List<string> catLs, List<DateTime> dateLs) GetLists(Entity[] entities)
@@ -108,9 +110,9 @@ namespace WebAppBot.Controllers
             return (catLs, dateLs);
         }
 
-        private string HandleNone(Entity[] entities)
+        private JsonResult HandleNone(Entity[] entities)
         {
-            return "Je ne comprends pas votre intention ...";
+            return Json("Je ne comprends pas votre intention ...");
         }
 
         [HttpGet("like/{id}/{isPositive}")]
@@ -147,31 +149,67 @@ namespace WebAppBot.Controllers
 
         [HttpGet("load/")]
         public string Load()
+        //public async Task<string> Load()
         {
+            const int DefaultBufferSize = 4096;
+            const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
             var debut = DateTime.Now;
             int count = 0;
-            using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            foreach (var line in System.IO.File.ReadAllLines("wiki.fr.vec"))
             {
-                using (BufferedStream bs = new BufferedStream(fs))
-                {
-                    using (StreamReader sr = new StreamReader(bs))
-                    {
-                        string line = sr.ReadLine();
-                        while ((line = sr.ReadLine()) != null)
-                        {
-                            ++count;
-                            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
-                            var toSkip = splitted.Count() - 300;
-                            var word = string.Join(" ", splitted.Take(toSkip));
-                            Debug.WriteLine(word);
-                            var vec = splitted.Skip(toSkip).
-                                               Select(x => float.Parse(x)).ToArray();
-                            Model.Add(word, vec);
-                        }
-                    }
-                }
+                ++count;
+                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+                var toSkip = splitted.Count() - 300;
+                var word = string.Join(" ", splitted.Take(toSkip));
+                var vec = splitted.Skip(toSkip).
+                                   Select(x => float.Parse(x)).ToArray();
+                Model.TryAdd(word, vec);
             }
-            return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + count;
+            //using (var stream = new FileStream("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+            //{
+            //    using (var reader = new StreamReader(stream, Encoding.UTF8))
+            //    {
+            //        string line = await reader.ReadLineAsync();
+            //        while ((line = await reader.ReadLineAsync()) != null)
+            //        {
+            //            ++count;
+            //            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+            //            var toSkip = splitted.Count() - 300;
+            //            var word = string.Join(" ", splitted.Take(toSkip));
+            //            var vec = splitted.Skip(toSkip).
+            //                               Select(x => float.Parse(x)).ToArray();
+            //            Model.TryAdd(word, vec);
+            //        }
+            //    }
+            //}
+            //using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //{
+            //    using (BufferedStream bs = new BufferedStream(fs))
+            //    {
+            //        using (StreamReader sr = new StreamReader(bs))
+            //        {
+            //            string line = sr.ReadLine();
+            //            while ((line = sr.ReadLine()) != null)
+            //            {
+            //                ++count;
+            //                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+            //                var toSkip = splitted.Count() - 300;
+            //                var word = string.Join(" ", splitted.Take(toSkip));
+            //                var vec = splitted.Skip(toSkip).
+            //                                   Select(x => float.Parse(x)).ToArray();
+            //                Model.TryAdd(word, vec);
+            //            }
+            //        }
+            //    }
+            //}
+
+            return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + Model.Count;
+        }
+
+        [HttpGet("word/{word}")]
+        public string Word([FromRoute]string word)
+        {
+            return Model.ContainsKey(word).ToString() + " " + Model.Count;
         }
     }
 }
