@@ -7,24 +7,25 @@ export default class Login extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <FormLabel>Nom d'utilisateur</FormLabel>
+                <FormLabel labelStyle={styles.form}>Nom d'utilisateur</FormLabel>
                 <FormInput/>
 
-                <FormLabel>Mot de passe</FormLabel>
+                <FormLabel labelStyle={styles.form}>Mot de passe</FormLabel>
                 <FormInput/>
 
                 <Button
                     large
                     iconRight={{ name: 'person' }}
                     backgroundColor="#4080ff"
-                    title='Login'
+                    title="Se connecter"
                     onPress={this.props.handleLogin}
                 />
 
                 <Button
                     large
                     iconRight={{ name: 'done' }}
-                    title='Register'
+                    backgroundColor="#424242"
+                    title="S'enregistrer"
                 />
             </View>
         );
@@ -34,6 +35,10 @@ export default class Login extends React.Component {
 const styles = StyleSheet.create({
         container: {
             flex: 1,
-        }
+            marginTop: 100,
+        },
+    form: {
+            color:'#424242'
+    }
     }
 );

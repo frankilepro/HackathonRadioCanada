@@ -80,11 +80,19 @@ export default class Chat extends React.Component {
                         messages[0].received = true;
 
                         if (response.type === 0) {
-                            this.onReceive(response.value[0].title, response.value[0].id, response.value[0].canonicalWebLink.href);
+                            this.onReceive(
+                                response.value[0].title,
+                                response.value[0].id,
+                                response.value[0].canonicalWebLink.href,
+                                response.value[0].summaryMultimediaItem.concreteImages[0].mediaLink.href
+                            );
                         } else {
                             this.onReceive(response.value, null, null)
                         }
 
+                        this.setState({ typingText: null });
+                    }).catch(() => {
+                        this.onReceive("Erreur lors du traitement de votre requête", null, null)
                         this.setState({ typingText: null });
                     });
                 }).catch((error) => {
@@ -209,7 +217,7 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 14,
-        color: '#aaa',
+        color: '#777777',
     },
 });
 
