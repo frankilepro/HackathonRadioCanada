@@ -257,7 +257,7 @@ namespace WebAppBot.Controllers
             var Db = Client.GetDatabase(MongoController.db);
             var collection = Db.GetCollection<Article>("articles");
             if (Articles == null) return;
-            foreach (var item in Articles)
+            foreach (var item in Articles.Reverse<Article>())
             {
                 ++Counter;
                 var vecs = new List<float[]>();
