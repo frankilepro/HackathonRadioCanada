@@ -45,5 +45,7 @@ namespace WebAppBot.Model
         public string timex { get; set; }
         public string type { get; set; }
         public string value { get; set; }
+        public string start { get; set; }
+        public string end { get; set; }
     }
 }

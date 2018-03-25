@@ -47,21 +47,10 @@ namespace WebAppBot.Controllers
 
         private JsonResult HandleGetNews(Entity[] entities)
         {
-            if (entities.Length == 0) return Json("");
-
-            string categoryType = "";
-            foreach (var entity in entities)
-            {
-                if (entity.type.Contains("Categorie"))
-                {
-                    categoryType = entity.type.Replace("Categorie::", "");
-                }
-            }
-
-            var suggestedArticles = MongoController.GetArticlesByCategory(categoryType);
-
+            
+            var lists = GetLists(entities);
+            var suggestedArticles = MongoController.GetArticlesByEntities(lists.catLs, lists.dateLs);
             return Json(suggestedArticles);
-            // return JsonConvert.SerializeObject(suggestedArticles);
         }
 
         private JsonResult HandleComment(Entity[] entities)
@@ -91,24 +80,37 @@ namespace WebAppBot.Controllers
 
         private (List<string> catLs, List<DateTime> dateLs) GetLists(Entity[] entities)
         {
-            var catLs = new List<string>();
-            var dateLs = new List<DateTime>();
+            var categList = new List<string>();
+            var dateList = new List<DateTime>();
             foreach (var item in entities)
             {
                 if (item.type.StartsWith("Categorie"))
                 {
-                    catLs.Add(item.entity);
+                    categList.Add(item.entity.ToLower());
                 }
-                else if (item.type.StartsWith("builtin"))
+                else if (item.type.EndsWith("date"))
                 {
-                    var date = item.resolution.values.First().timex;
+                    var date = item.resolution.values.First().value;
                     if (DateTime.TryParse(date, out var day))
                     {
-                        dateLs.Add(day);
+                        dateList.Add(day);
+                    }
+                }
+                else if (item.type.EndsWith("daterange"))
+                {
+                    var dateBegin = item.resolution.values.First().start;
+                    var dateEnd = item.resolution.values.First().end;
+                    if(DateTime.TryParse(dateBegin, out var day) && DateTime.TryParse(dateEnd, out var lDay)) 
+                    {
+                        while (day != lDay) 
+                        {
+                            dateList.Add(day);
+                            day = day.AddDays(1);
+                        }
                     }
                 }
             }
-            return (catLs, dateLs);
+            return (categList, dateList);
         }
 
         private JsonResult HandleNone(Entity[] entities)
