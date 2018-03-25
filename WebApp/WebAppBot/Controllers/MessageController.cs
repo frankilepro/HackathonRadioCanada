@@ -26,7 +26,7 @@ namespace WebAppBot.Controllers
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
         static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
-        private object path;
+        static List<Article> Articles;
 
         [HttpGet("text/{text}")]
         public async Task<JsonResult> GetText([FromRoute]string text)
@@ -164,7 +164,17 @@ namespace WebAppBot.Controllers
                     Ex = "fini";
                     Seconds = (DateTime.Now - Debut).TotalSeconds;
                 });
+            Task.Run(() => Init());
             return "C'est partie";
+        }
+
+        private void Init()
+        {
+            var Client = new MongoClient(MongoController.uri);
+            var Db = Client.GetDatabase(MongoController.db);
+            var collection = Db.GetCollection<Article>("articles");
+            var filter = Builders<Article>.Filter.Empty;
+            Articles = collection.Find(filter).ToList();
         }
 
         static DateTime Debut;
@@ -209,6 +219,18 @@ namespace WebAppBot.Controllers
         public string Word([FromRoute]string word)
         {
             return Model.ContainsKey(word).ToString() + " " + Counter + " " + Seconds + " " + Ex;
+        }
+
+        [HttpGet("test/{test}")]
+        public string Test([FromRoute]string test)
+        {
+            if (Articles == null) return "null";
+            if (Model.TryGetValue(test, out var vec))
+            {
+                var ls = Articles.OrderByDescending(x => DistanceBetweenVecs(x.Vector, vec));
+                return string.Join(Environment.NewLine, ls);
+            }
+            return "not in model";
         }
 
         [HttpGet("UpdateArticles/")]
@@ -270,6 +292,16 @@ namespace WebAppBot.Controllers
                 }
                 collection.UpdateOne(x => x.Id == item.Id, Builders<Article>.Update.Set("vector", rep));
             }
+        }
+
+        private double DistanceBetweenVecs(float[] vec1, float[] vec2)
+        {
+            double result = 0;
+            for (int i = 0; i < 300; i++)
+            {
+                result += Math.Pow(vec1[i] - vec2[i], 2);
+            }
+            return Math.Sqrt(result);
         }
     }
 }
