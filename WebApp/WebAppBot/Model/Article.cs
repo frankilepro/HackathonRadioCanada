@@ -9,6 +9,7 @@ namespace WebAppBot.Model
         [BsonId]
         public ObjectId MongoId { get; set; }
 
+        [BsonRepresentation(BsonType.Double, AllowTruncation = true)]
         [BsonElement("vector")]
         public float[] Vector { get; set; }
 
@@ -137,7 +138,6 @@ namespace WebAppBot.Model
         [BsonElement("shareableSummaryMultimediaContent")]
         public ShareableSummaryMultimediaContent ShareableSummaryMultimediaContent { get; set; }
 
-        //[BsonIgnore]
         [BsonElement("keyPhrases")]
         public string[] KeyPhrases { get; set; }
     }
