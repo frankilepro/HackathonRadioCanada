@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using WebAppBot.Data;
 using WebAppBot.Model;
 using System.Threading;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebAppBot.Controllers
 {
@@ -47,7 +48,7 @@ namespace WebAppBot.Controllers
 
         private JsonResult HandleGetNews(Entity[] entities)
         {
-            
+
             var lists = GetLists(entities);
             var suggestedArticles = MongoController.GetArticlesByEntities(lists.catLs, lists.dateLs);
             return Json(suggestedArticles);
@@ -100,9 +101,9 @@ namespace WebAppBot.Controllers
                 {
                     var dateBegin = item.resolution.values.First().start;
                     var dateEnd = item.resolution.values.First().end;
-                    if(DateTime.TryParse(dateBegin, out var day) && DateTime.TryParse(dateEnd, out var lDay)) 
+                    if (DateTime.TryParse(dateBegin, out var day) && DateTime.TryParse(dateEnd, out var lDay))
                     {
-                        while (day != lDay) 
+                        while (day != lDay)
                         {
                             dateList.Add(day);
                             day = day.AddDays(1);
@@ -207,12 +208,49 @@ namespace WebAppBot.Controllers
             return Model.ContainsKey(word).ToString() + " " + Model.Count + " " + Seconds + " " + Ex;
         }
 
-        [HttpGet("Update/")]
-        public string Update()
+        [HttpGet("UpdateArticles/")]
+        public string UpdateArticles()
         {
             var Client = new MongoClient(MongoController.uri);
             var Db = Client.GetDatabase(MongoController.db);
             var collection = Db.GetCollection<Article>("articles");
+            var filter = Builders<Article>.Filter.Empty;
+            foreach (var item in collection.Find(filter).ToList())
+            {
+                var vecs = new List<float[]>();
+                foreach (var key in item.KeyPhrases)
+                {
+                    if (Model.TryGetValue(key, out var vec))
+                    {
+                        vecs.Add(vec);
+                    }
+                }
+                float[] rep;
+                if (vecs.Count > 0)
+                {
+                    rep = vecs[0];
+                    for (int i = 1; i < vecs.Count; i++)
+                    {
+                        for (int j = 0; j < 300; j++)
+                        {
+                            rep[j] += vecs[i][j];
+                        }
+                    }
+                    for (int j = 0; j < 300; j++)
+                    {
+                        rep[j] /= vecs.Count;
+                    }
+                }
+                else
+                {
+                    rep = new float[300];
+                    for (int j = 0; j < 300; j++)
+                    {
+                        rep[j] = 0;
+                    }
+                }
+                collection.UpdateOne(x => x.Id == item.Id, Builders<Article>.Update.Set("vector", rep));
+            }
             return "nice";
         }
     }

@@ -27,13 +27,10 @@ namespace WebAppBot.Data
             await collection.InsertOneAsync(doc);
         }
 
-        public static void UpdatePreferences(int userId, string articleId, bool isPositive)
+        public static void UpdatePreferences(int userId, Article article, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
             var user = userCollection.Find(x => x.Id == userId).First();
-
-            var articleCollection = Db.GetCollection<Article>("articles");
-            var article = articleCollection.Find(x => x.Id == articleId).First();
 
             var newVector = new List<float>();
             for (var i = 0; i < user.Vector.Count; i++)
@@ -66,7 +63,7 @@ namespace WebAppBot.Data
                 }
                 else
                 {
-                    
+
                 }
             }
             // filter = Builders<Article>.Filter.Regex("themeTag.name",
