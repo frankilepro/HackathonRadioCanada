@@ -26,7 +26,7 @@ namespace WebAppBot.Controllers
         const string URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4b27fd30-c27c-4f48-8e7a-db3fd54a4059?subscription-key=e11e7ae44c214a6b8cf28199afa0cdd0&verbose=true&timezoneOffset=0&q=";
 
         static ConcurrentDictionary<string, float[]> Model = new ConcurrentDictionary<string, float[]>();
-        static List<Article> Articles;
+        public static List<Article> Articles;
 
         [HttpGet("text/{text}")]
         public async Task<JsonResult> GetText([FromRoute]string text)

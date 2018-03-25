@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using WebAppBot.Controllers;
 using WebAppBot.Model;
 
 namespace WebAppBot.Data
@@ -32,8 +33,7 @@ namespace WebAppBot.Data
             var userCollection = Db.GetCollection<Preference>("user");
             var user = userCollection.Find(x => x.Id == userId).First();
 
-            var artCollection = Db.GetCollection<Article>("articles");
-            var article = artCollection.Find(x => x.Id == articleID).First();
+            var article = MessageController.Articles.First(x => x.Id == articleID);
 
             var newVector = Enumerable.Repeat(0.0f, 300).ToArray();
             for (var i = 0; i < user.Vector.Length; i++)
