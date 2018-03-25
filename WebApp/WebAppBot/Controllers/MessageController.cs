@@ -148,51 +148,53 @@ namespace WebAppBot.Controllers
         }
 
         [HttpGet("load/")]
-        public async Task<string> Load()
+        public string Load()
+        //public async Task<string> Load()
         {
             const int DefaultBufferSize = 4096;
             const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
             var debut = DateTime.Now;
             int count = 0;
-            using (var stream = new FileStream("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
-            {
-                using (var reader = new StreamReader(stream, Encoding.UTF8))
-                {
-                    string line = await reader.ReadLineAsync();
-                    while ((line = await reader.ReadLineAsync()) != null)
-                    {
-                        ++count;
-                        var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
-                        var toSkip = splitted.Count() - 300;
-                        var word = string.Join(" ", splitted.Take(toSkip));
-                        Debug.WriteLine(word);
-                        var vec = splitted.Skip(toSkip).
-                                           Select(x => float.Parse(x)).ToArray();
-                        Model.TryAdd(word, vec);
-                    }
-                }
-            }
-            //using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //using (var stream = new FileStream("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
             //{
-            //    using (BufferedStream bs = new BufferedStream(fs))
+            //    using (var reader = new StreamReader(stream, Encoding.UTF8))
             //    {
-            //        using (StreamReader sr = new StreamReader(bs))
+            //        string line = await reader.ReadLineAsync();
+            //        while ((line = await reader.ReadLineAsync()) != null)
             //        {
-            //            string line = sr.ReadLine();
-            //            while ((line = sr.ReadLine()) != null)
-            //            {
-            //                ++count;
-            //                var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
-            //                var toSkip = splitted.Count() - 300;
-            //                var word = string.Join(" ", splitted.Take(toSkip));
-            //                Debug.WriteLine(word);
-            //                var vec = splitted.Skip(toSkip).
-            //                                   Select(x => float.Parse(x)).ToArray();
-            //                Model.Add(word, vec);
-            //            }
+            //            ++count;
+            //            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+            //            var toSkip = splitted.Count() - 300;
+            //            var word = string.Join(" ", splitted.Take(toSkip));
+            //            Debug.WriteLine(word);
+            //            var vec = splitted.Skip(toSkip).
+            //                               Select(x => float.Parse(x)).ToArray();
+            //            Model.TryAdd(word, vec);
             //        }
             //    }
             //}
+            using (FileStream fs = System.IO.File.Open("wiki.fr.vec", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (BufferedStream bs = new BufferedStream(fs))
+                {
+                    using (StreamReader sr = new StreamReader(bs))
+                    {
+                        string line = sr.ReadLine();
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            ++count;
+                            var splitted = line.Split(" ").Where(x => !string.IsNullOrEmpty(x));
+                            var toSkip = splitted.Count() - 300;
+                            var word = string.Join(" ", splitted.Take(toSkip));
+                            Debug.WriteLine(word);
+                            var vec = splitted.Skip(toSkip).
+                                               Select(x => float.Parse(x)).ToArray();
+                            Model.TryAdd(word, vec);
+                        }
+                    }
+                }
+            }
+
             return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + Model.Count;
         }
 
