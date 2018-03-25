@@ -30,7 +30,7 @@ namespace WebAppBot.Data
 
         public static void UpdatePreferences(string articleID, bool isPositive)
         {
-            var userCollection = Db.GetCollection<Preference>("MessageController.User");
+            var userCollection = Db.GetCollection<Preference>("user");
 
             var article = MessageController.Articles.First(x => x.Id == articleID);
 
@@ -52,7 +52,7 @@ namespace WebAppBot.Data
             var res = userCollection.UpdateOne(x => x.UserId == 1,
                 Builders<Preference>.Update.Set("vector", newVector)
                                            .Set("nb", ++MessageController.User.NbArticles)
-                                           .Set("history", MessageController.User.History));
+                                           .Set("history", new List<string>(MessageController.User.History)));
             if (res.MatchedCount == 0)
             {
                 userCollection.InsertOne(new Preference
@@ -70,78 +70,101 @@ namespace WebAppBot.Data
             Random ran = new Random();
             var articlesCollection = Db.GetCollection<Article>("articles");
             var articles = new List<Article>();
-            FilterDefinition<Article> filter;
-            if (catLs.Count == 0)
-            {
-                if (dateLs.Count == 0)
-                {
-                    filter = Builders<Article>.Filter.Empty;
-                    var req = articlesCollection.Find(filter);
-                    var count = req.Count();
-                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-                }
-                else if (dateLs.Count == 1)
-                {
-                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
+            // FilterDefinition<Article> filter;
+            var ls = MessageController.Articles;
 
-                    var req = articlesCollection.Find(filter);
-                    var count = req.Count();
-                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-                }
-                else
-                {
-                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
-                    foreach (var item in dateLs)
-                    {
-                        Console.WriteLine(item.ToString("yyyy-MM-dd"));
-                        filter = Builders<Article>.Filter.Or(filter,
-                            Builders<Article>.Filter.Regex("publishedLastTimeAt", item.ToString("yyyy-MM-dd")));
-                    }
-                    var req = articlesCollection.Find(filter);
-                    var count = req.Count();
-                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-                }
+            if (catLs.Count > 0 && MessageController.Model.TryGetValue(catLs.First(), out var vec))
+            {
+                ls = MessageController.Articles.OrderBy(
+                    x => MessageController.DistanceBetweenVecs(x.Vector, vec)).Take(10).ToList();
             }
             else
             {
-                if (dateLs.Count == 0)
-                {
-                    Console.WriteLine(catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower());
-                    filter = Builders<Article>.Filter.Regex("themeTag.name",
-                        "Sport");
-                    var req = articlesCollection.Find(filter);
-                    var count = req.Count();
-                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-                }
-                else if (dateLs.Count == 1)
-                {
-                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
-                    filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
-                        catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
-
-                    var req = articlesCollection.Find(filter);
-                    var count = req.Count();
-                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-                }
-                else
-                {
-                    filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
-                    foreach (var item in dateLs)
-                    {
-                        Console.WriteLine(item.ToString("yyyy-MM-dd"));
-                        filter = Builders<Article>.Filter.Or(filter,
-                            Builders<Article>.Filter.Regex("publishedLastTimeAt", item.ToString("yyyy-MM-dd")));
-                    }
-                    filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
-                        catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
-
-                    var req = articlesCollection.Find(filter);
-                    var count = req.Count();
-                    articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
-                }
+                ls = MessageController.Articles.OrderBy(
+                    x => MessageController.DistanceBetweenVecs(x.Vector, MessageController.User.Vector)).Take(10).ToList();
             }
 
-            return articles;
+
+            // if (catLs.Count == 0)
+            // {
+            // if (dateLs.Count == 0)
+            // {
+            //     filter = Builders<Article>.Filter.Empty;
+            //     var req = articlesCollection.Find(filter);
+            //     var count = req.Count();
+            //     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+            // }
+            // else if (dateLs.Count == 1)
+            // {
+            //     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
+
+            //     var req = articlesCollection.Find(filter);
+            //     var count = req.Count();
+            //     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+            // }
+            // else
+            // {
+            //     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
+            //     foreach (var item in dateLs)
+            //     {
+            //         Console.WriteLine(item.ToString("yyyy-MM-dd"));
+            //         filter = Builders<Article>.Filter.Or(filter,
+            //             Builders<Article>.Filter.Regex("publishedLastTimeAt", item.ToString("yyyy-MM-dd")));
+            //     }
+            //     var req = articlesCollection.Find(filter);
+            //     var count = req.Count();
+            //     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+            // }
+            // }
+            // else
+            // {
+            // if (dateLs.Count == 0)
+            // {
+            //     Console.WriteLine(catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower());
+            //     filter = Builders<Article>.Filter.Regex("themeTag.name",
+            //         catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower());
+            //     var req = articlesCollection.Find(filter);
+            //     var count = req.Count();
+            //     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+            // }
+            // else if (dateLs.Count == 1)
+            // {
+            //     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
+            //     filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
+            //         catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
+
+            //     var req = articlesCollection.Find(filter);
+            //     var count = req.Count();
+            //     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+            // }
+            // else
+            // {
+            //     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", "bidon");
+            //     foreach (var item in dateLs)
+            //     {
+            //         Console.WriteLine(item.ToString("yyyy-MM-dd"));
+            //         filter = Builders<Article>.Filter.Or(filter,
+            //             Builders<Article>.Filter.Regex("publishedLastTimeAt", item.ToString("yyyy-MM-dd")));
+            //     }
+            //     filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
+            //         catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
+
+            //     var req = articlesCollection.Find(filter);
+            //     var count = req.Count();
+            //     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
+            // }
+            // }
+
+            Console.WriteLine(ls.Count);
+            if (dateLs.Count != 0)
+            {
+                return ls.Where(x => x.PublishedLastTimeAt.ToLower()
+                    .Contains(dateLs.First().ToString("yyyy-MM-dd"))).Take(3).ToList();
+            }
+            else
+            {
+                return ls.Skip(ran.Next(ls.Count)).Take(3).ToList();
+            }
         }
     }
 }
