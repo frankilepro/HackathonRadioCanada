@@ -8,7 +8,7 @@ namespace WebAppBot.Model
         [BsonElement("userid")]
         public int Id { get; set; }
         [BsonElement("vector")]
-        public List<float> Vector { get; set; }
+        public float[] Vector { get; set; }
         [BsonElement("nb")]
         public int NbArticles { get; set; }
         [BsonElement("history")]

@@ -48,7 +48,6 @@ namespace WebAppBot.Controllers
 
         private JsonResult HandleGetNews(Entity[] entities)
         {
-
             var lists = GetLists(entities);
             var suggestedArticles = MongoController.GetArticlesByEntities(lists.catLs, lists.dateLs);
             return Json(suggestedArticles);
@@ -119,10 +118,10 @@ namespace WebAppBot.Controllers
             return Json("Je ne comprends pas votre intention ...");
         }
 
-        [HttpGet("like/{id}/{isPositive}")]
+        [HttpGet("like/{articleId}/{isPositive}")]
         public string GetLike([FromRoute]string articleId, [FromRoute]bool isPositive)
         {
-            //MongoController.UpdatePreferences(1, articleId, isPositive);
+            MongoController.UpdatePreferences(1, articleId, isPositive);
             if (isPositive)
             {
                 return "Merci :)";
@@ -151,7 +150,6 @@ namespace WebAppBot.Controllers
             return "good";
         }
 
-        static CancellationTokenSource Cts;
         [HttpGet("load/")]
         public string Load()
         {
@@ -223,11 +221,11 @@ namespace WebAppBot.Controllers
         public string Test([FromRoute]string test)
         {
             if (Articles == null) return "null";
-            //if (Model.TryGetValue(test, out var vec))
-            //{
-            //    var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, vec));
-            //    return string.Join(Environment.NewLine, ls.Select(x => x.Title));
-            //}
+            if (!int.TryParse(test, out int _) && Model.TryGetValue(test, out var vec))
+            {
+                var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, vec));
+                return string.Join(Environment.NewLine, ls.Select(x => x.Title));
+            }
             var art = Articles.FirstOrDefault(x => x.Id == test);
             if (art != null)
             {
@@ -289,11 +287,7 @@ namespace WebAppBot.Controllers
                     }
                     else
                     {
-                        subRep = new float[300];
-                        for (int j = 0; j < 300; j++)
-                        {
-                            subRep[j] = 0;
-                        }
+                        subRep = Enumerable.Repeat(0.0f, 300).ToArray();
                     }
                     vecs.Add(subRep);
                 }
@@ -315,11 +309,7 @@ namespace WebAppBot.Controllers
                 }
                 else
                 {
-                    rep = new float[300];
-                    for (int j = 0; j < 300; j++)
-                    {
-                        rep[j] = 0;
-                    }
+                    rep = Enumerable.Repeat(0.0f, 300).ToArray();
                 }
                 collection.UpdateOne(x => x.Id == item.Id, Builders<Article>.Update.Set("vector", rep));
             }

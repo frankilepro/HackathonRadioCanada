@@ -27,13 +27,16 @@ namespace WebAppBot.Data
             await collection.InsertOneAsync(doc);
         }
 
-        public static void UpdatePreferences(int userId, Article article, bool isPositive)
+        public static void UpdatePreferences(int userId, string articleID, bool isPositive)
         {
             var userCollection = Db.GetCollection<Preference>("user");
             var user = userCollection.Find(x => x.Id == userId).First();
 
-            var newVector = new List<float>();
-            for (var i = 0; i < user.Vector.Count; i++)
+            var artCollection = Db.GetCollection<Article>("articles");
+            var article = artCollection.Find(x => x.Id == articleID).First();
+
+            var newVector = Enumerable.Repeat(0.0f, 300).ToArray();
+            for (var i = 0; i < user.Vector.Length; i++)
             {
                 if (isPositive)
                 {
@@ -45,7 +48,20 @@ namespace WebAppBot.Data
                 }
             }
 
-            userCollection.UpdateOne(x => x.Id == userId, Builders<Preference>.Update.Set("vector", newVector));
+            var res = userCollection.UpdateOne(x => x.Id == userId,
+                Builders<Preference>.Update.Set("vector", newVector)
+                                           .Set("nb", ++user.NbArticles)
+                                           .Set("history", new List<string>(user.History) { article.Id }));
+            if (res.MatchedCount == 0)
+            {
+                userCollection.InsertOne(new Preference
+                {
+                    Id = 1,
+                    NbArticles = 1,
+                    History = new List<string>() { article.Id },
+                    Vector = newVector
+                });
+            }
         }
 
         public static List<Article> GetArticlesByEntities(List<string> catLs, List<DateTime> dateLs)
@@ -66,7 +82,7 @@ namespace WebAppBot.Data
                 else if (dateLs.Count == 1)
                 {
                     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
-                    
+
                     var req = articlesCollection.Find(filter);
                     var count = req.Count();
                     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
@@ -101,7 +117,7 @@ namespace WebAppBot.Data
                     filter = Builders<Article>.Filter.Regex("publishedLastTimeAt", dateLs.First().ToString("yyyy-MM-dd"));
                     filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
                         catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
-                    
+
                     var req = articlesCollection.Find(filter);
                     var count = req.Count();
                     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
@@ -117,13 +133,13 @@ namespace WebAppBot.Data
                     }
                     filter = Builders<Article>.Filter.Or(filter, Builders<Article>.Filter.Regex("themeTag.name",
                         catLs.First().First().ToString().ToUpper() + catLs.First().Substring(1).ToLower()));
-                    
+
                     var req = articlesCollection.Find(filter);
                     var count = req.Count();
                     articles = req.Skip(ran.Next((int)count)).Limit(3).ToList();
                 }
             }
-            
+
             return articles;
         }
     }
