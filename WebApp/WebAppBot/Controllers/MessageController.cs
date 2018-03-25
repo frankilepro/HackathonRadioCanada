@@ -124,21 +124,21 @@ namespace WebAppBot.Controllers
             }
         }
 
-        [HttpGet("load/")]
-        public string Load()
+        [HttpGet("download/")]
+        public string Download()
         {
-            if (CloudStorageAccount.TryParse(CONN, out var storageAccount))
-            {
-                var cloudContainerRef = storageAccount.CreateCloudBlobClient().
-                        GetContainerReference("hackrccontainer");
+            //if (CloudStorageAccount.TryParse(CONN, out var storageAccount))
+            //{
+            //    var cloudContainerRef = storageAccount.CreateCloudBlobClient().
+            //            GetContainerReference("hackrccontainer");
 
-                var cloudBlockBlob = cloudContainerRef.GetBlockBlobReference("wiki.fr.vec");
-                cloudBlockBlob.DownloadToFileAsync("wiki.fr.vec", FileMode.Create).Wait();
-            }
-            else
-            {
-                throw new Exception();
-            }
+            //    var cloudBlockBlob = cloudContainerRef.GetBlockBlobReference("wiki.fr.vec");
+            //    cloudBlockBlob.DownloadToFileAsync("wiki.fr.vec", FileMode.Create).Wait();
+            //}
+            //else
+            //{
+            //    throw new Exception();
+            //}
             return "good";
         }
     }
