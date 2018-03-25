@@ -156,12 +156,13 @@ namespace WebAppBot.Data
             // }
 
             Console.WriteLine(ls.Count);
-            if(dateLs.Count != 0)
+            if (dateLs.Count != 0)
             {
                 return ls.Where(x => x.PublishedLastTimeAt.ToLower()
                     .Contains(dateLs.First().ToString("yyyy-MM-dd"))).Take(3).ToList();
             }
-            else{
+            else
+            {
                 return ls.Skip(ran.Next(ls.Count)).Take(3).ToList();
             }
         }
