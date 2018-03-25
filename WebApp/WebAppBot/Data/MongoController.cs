@@ -159,11 +159,11 @@ namespace WebAppBot.Data
             if (dateLs.Count != 0)
             {
                 return ls.Where(x => x.PublishedLastTimeAt.ToLower()
-                    .Contains(dateLs.First().ToString("yyyy-MM-dd"))).Take(3).ToList();
+                    .Contains(dateLs.First().ToString("yyyy-MM-dd"))).Take(1).ToList();
             }
             else
             {
-                return ls.Skip(ran.Next(ls.Count)).Take(3).ToList();
+                return ls.Skip(ran.Next(ls.Count)).Take(1).ToList();
             }
         }
     }
