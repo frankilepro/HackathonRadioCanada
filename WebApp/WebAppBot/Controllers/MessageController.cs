@@ -225,10 +225,16 @@ namespace WebAppBot.Controllers
         public string Test([FromRoute]string test)
         {
             if (Articles == null) return "null";
-            if (Model.TryGetValue(test, out var vec))
+            //if (Model.TryGetValue(test, out var vec))
+            //{
+            //    var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, vec));
+            //    return string.Join(Environment.NewLine, ls.Select(x => x.Title));
+            //}
+            var art = Articles.FirstOrDefault(x => x.Id == test);
+            if (art != null)
             {
-                var ls = Articles.OrderByDescending(x => DistanceBetweenVecs(x.Vector, vec));
-                return string.Join(Environment.NewLine, ls);
+                var ls = Articles.OrderBy(x => DistanceBetweenVecs(x.Vector, art.Vector));
+                return string.Join(Environment.NewLine, ls.Select(x => x.Title));
             }
             return "not in model";
         }
@@ -254,17 +260,46 @@ namespace WebAppBot.Controllers
             var Client = new MongoClient(MongoController.uri);
             var Db = Client.GetDatabase(MongoController.db);
             var collection = Db.GetCollection<Article>("articles");
-            var filter = Builders<Article>.Filter.Empty;
-            foreach (var item in collection.Find(filter).ToList())
+            if (Articles == null) return;
+            foreach (var item in Articles)
             {
                 ++Counter;
                 var vecs = new List<float[]>();
                 foreach (var key in item.KeyPhrases)
                 {
-                    if (Model.TryGetValue(key, out var vec))
+                    var subVecs = new List<float[]>();
+                    foreach (var word in key.Split(" "))
                     {
-                        vecs.Add(vec);
+                        if (Model.TryGetValue(word, out var vec))
+                        {
+                            subVecs.Add(vec);
+                        }
                     }
+                    float[] subRep;
+                    if (subVecs.Count > 0)
+                    {
+                        subRep = subVecs[0];
+                        for (int i = 1; i < subVecs.Count; i++)
+                        {
+                            for (int j = 0; j < 300; j++)
+                            {
+                                subRep[j] += subVecs[i][j];
+                            }
+                        }
+                        for (int j = 0; j < 300; j++)
+                        {
+                            subRep[j] /= subVecs.Count;
+                        }
+                    }
+                    else
+                    {
+                        subRep = new float[300];
+                        for (int j = 0; j < 300; j++)
+                        {
+                            subRep[j] = 0;
+                        }
+                    }
+                    vecs.Add(subRep);
                 }
                 float[] rep;
                 if (vecs.Count > 0)
