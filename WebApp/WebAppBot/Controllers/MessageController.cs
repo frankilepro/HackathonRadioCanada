@@ -194,5 +194,11 @@ namespace WebAppBot.Controllers
             //}
             return (DateTime.Now - debut).TotalMilliseconds.ToString() + " " + Model.Count;
         }
+
+        [HttpGet("{word}")]
+        public string Word([FromRoute]string word)
+        {
+            return Model.ContainsKey(word).ToString() + " " + Model.Count;
+        }
     }
 }
