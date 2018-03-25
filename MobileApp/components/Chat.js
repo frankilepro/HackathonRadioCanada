@@ -23,7 +23,7 @@ export default class Chat extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: props.id,
+            id: 42,
             messages: [],
             typingText: null,
         };
@@ -117,7 +117,7 @@ export default class Chat extends React.Component {
             text: text,
             createdAt: new Date(),
             user: {
-                _id: this.props.id,
+                _id: this.state.id,
             },
         };
 
@@ -175,7 +175,7 @@ export default class Chat extends React.Component {
                 onSend={this.onSend}
 
                 user={{
-                    _id: this.props.id,
+                    _id: this.state.id,
                 }}
 
                 renderActions={this.renderCustomActions}

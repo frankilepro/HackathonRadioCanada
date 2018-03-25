@@ -7,12 +7,12 @@ export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            logged: true,
+            logged: false,
             id: null
         }
     }
 
-    handleLogin = (id) => {
+    handleLogin = (id = 42) => {
         this.setState({
             logged: true,
             id: id
@@ -20,7 +20,7 @@ export default class App extends React.Component {
     };
 
     render() {
-        let ElementToRender = <Login/>;
+        let ElementToRender = <Login handleLogin={this.handleLogin}/>;
         if (this.state.logged) {
             ElementToRender = <Chat id={this.state.id}/>;
         }
