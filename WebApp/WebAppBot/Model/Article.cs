@@ -11,7 +11,6 @@ namespace WebAppBot.Model
 
         [BsonRepresentation(BsonType.Double, AllowTruncation = true)]
         [BsonElement("vector")]
-        [BsonRepresentation(BsonType.Double, AllowTruncation=true)]
         public float[] Vector { get; set; }
 
         [BsonIgnore]
