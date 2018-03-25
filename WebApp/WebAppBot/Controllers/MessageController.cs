@@ -7,11 +7,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-<<<<<<< HEAD
 using MongoDB.Bson;
-=======
 using Microsoft.WindowsAzure.Storage;
->>>>>>> 21618df0d4c092b8ee7700f0a52e1dd298a3b996
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using WebAppBot.Data;
